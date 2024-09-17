@@ -24,13 +24,13 @@ const WeatherForecast = () => {
     };
 
     return (
-        <div className='flex flex-col items-center w-full font-sans p-4 bg-blue-900 min-h-screen'>
+        <div className='flex flex-col items-center w-full font-sans p-4  min-h-screen'>
             <div className='w-full max-w-3xl'>
                 <Link href="/" className="text-white hover:text-gray-200 flex items-center mb-6 text-lg">
                     <ArrowLeft className="mr-2" />
                     Back to Home
                 </Link>
-                <h1 className='text-4xl font-bold text-white mb-6'>7-Day Weather Forecast</h1>
+                <h1 className='text-4xl font-bold text-yellow-400 mb-6'>7-Day Weather Forecast</h1>
                 <div className="space-y-4">
                     {forecast.map((day, index) => (
                         <div key={index} className="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
