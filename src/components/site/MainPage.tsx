@@ -3,18 +3,24 @@
 import React from 'react';
 import Image from 'next/image';
 import ContractBox from './Box';
+import Link from 'next/link';
+import { CloudSun } from 'lucide-react';
 
 const MainPage = () => {
     return (
         <div className='flex flex-col items-center w-full font-sans p-6'>
             <div className='w-full max-w-4xl'>
-                <div className="flex items-center mb-4">
+                <div className="flex justify-around items-center mb-4">
                     <div>
                         <h1 className='text-3xl font-bold text-white'>
                             Welcome, <span className='text-yellow-400'>Farmer Name!</span>
                         </h1>
                         <p className='text-xl text-gray-300'>Here is your crop contract status</p>
                     </div>
+                    <Link href="/weather" className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full flex items-center">
+                        <CloudSun className="mr-2" />
+                        Weather
+                    </Link>
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-6 mt-8">
