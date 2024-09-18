@@ -51,14 +51,14 @@ const SideBar = () => {
   );
 };
 
-const NavItem = ({ icon, label }) => (
+const NavItem = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
   <button className="flex items-center gap-3 w-full bg-accent/50 p-3 rounded-lg hover:bg-accent transition-colors duration-200">
     {icon}
     <span className="text-lg">{label}</span>
   </button>
 );
 
-const StatusItem = ({ color, label }) => (
+const StatusItem = ({ color, label } : { color: React.ReactNode; label: string }) => (
   <div className="flex items-center gap-2">
     <div className={`w-2 h-2 rounded-full ${color}`}></div>
     <span>{label}</span>
