@@ -31,7 +31,7 @@ const SideBar = () => {
           <NavItem icon={<Globe size={20} />} label="Lease land" />
           <div className="flex items-center gap-3 bg-accent/50 p-3 rounded-lg hover:bg-accent transition-colors duration-200">
             <User size={20} />
-            <span className="text-lg">Farmer Name</span>
+            <span className="text-lg">Rahul</span>
           </div>
 
           <Link
