@@ -8,18 +8,18 @@ import { CloudSun } from 'lucide-react';
 
 const MainPage = () => {
     return (
-        <div className='flex flex-col items-center w-full font-sans p-6'>
+        <div className='flex flex-col items-center w-full font-sans p-6 bg-gray-100 dark:bg-gray-900 h-screen'>
             <div className='w-full max-w-4xl'>
-                <div className="flex justify-around items-center mb-4">
+                <div className="flex justify-between items-center mb-4">
                     <div>
-                        <h1 className='text-3xl font-bold text-white'>
-                            Welcome, <span className='text-yellow-400'>Farmer Name!</span>
+                        <h1 className='text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight'>
+                            Welcome, <span className='text-blue-600 dark:text-blue-400'>Rahul!</span>
                         </h1>
-                        <p className='text-xl text-gray-300'>Here is your crop contract status</p>
+                        <p className='text-xl text-gray-600 dark:text-gray-300 mb-9'>Here is your crop contract status</p>
                     </div>
-                    <Link href="/weather" className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full flex items-center">
+                    <Link href="/weather" className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full flex items-center transition-colors">
                         <CloudSun className="mr-2" />
-                        Weather
+                       7 day Weather
                     </Link>
                 </div>
                 

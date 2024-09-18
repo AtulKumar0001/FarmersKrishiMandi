@@ -1,97 +1,68 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Home, Book, Globe, User, LogOut } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React from "react";
+import { Home, Book, Globe, User, LogOut } from "lucide-react";
+import Link from "next/link";
 
 const SideBar = () => {
-    return (
-        <div
-            className='md:h-screen md:w-1/3 text-white shadow-xl p-4 font-sans'
-            style={{
-                background: 'linear-gradient(#354740, #2d2d2d)',
-            }}
-        >
-            <div className="flex text-white items-center gap-2 mb-8">
-                <Image
-                height={80}
-                width={80}
-                alt='logo'
-                src="/assets/logo.png"
-                />
-                <div className='text-3xl'>KRISHIमंडी</div>
+  return (
+    <div className="h-screen w-full text-foreground bg-background/95 shadow-lg p-6 font-sans flex flex-col justify-between">
+      <div>
+        <div className="space-y-4">
+          <NavItem icon={<Home size={20} />} label="Home" />
+
+          <div>
+            <NavItem icon={<Book size={20} />} label="Contracts" />
+            <div className="mt-2 ml-8 space-y-2 text-sm">
+              <StatusItem color="bg-orange-400" label="Total Contracts: 4" />
+              <StatusItem color="bg-yellow-400" label="Active Contracts: 2" />
+              <StatusItem color="bg-green-500" label="Completed Contracts: 1" />
+              <StatusItem color="bg-blue-400" label="Ongoing Delivery: 1" />
             </div>
+          </div>
 
-            <div className='space-y-6'>
-                {/* Home */}
-                <button className='flex items-center gap-4 w-full bg-white bg-opacity-10 p-4 rounded-xl'>
-                    <Home size={24} />
-                    <span className='text-xl'>Home</span>
-                </button>
+          <NavItem icon={<Globe size={20} />} label="Bid section" />
+          <div className="mt-2 ml-8 space-y-2 text-sm">
+            <StatusItem color="bg-orange-400" label="Total Bid: 4" />
+            <StatusItem color="bg-yellow-400" label="Active Bid: 2" />
+            <StatusItem color="bg-green-500" label="Completed Bid: 1" />
+            <StatusItem color="bg-blue-400" label="Ongoing Bid: 1" />
+          </div>
+          <NavItem icon={<Globe size={20} />} label="Lease land" />
+          <div className="flex items-center gap-3 bg-accent/50 p-3 rounded-lg hover:bg-accent transition-colors duration-200">
+            <User size={20} />
+            <span className="text-lg">Farmer Name</span>
+          </div>
 
-                {/* Contracts */}
-                <div>
-                    <button className='flex items-center gap-4 w-full bg-white bg-opacity-10 p-4 rounded-xl'>
-                        <Book size={24} />
-                        <span className='text-xl'>Contracts</span>
-                    </button>
-                    <div className='mt-2 ml-12 space-y-2'>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-3 h-3 rounded-full bg-orange-400'></div>
-                            <span>Total Contracts: 4</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-3 h-3 rounded-full bg-yellow-400 '></div>
-                            <span>Active Contracts: 2</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-3 h-3 rounded-full bg-green-700 '></div>
-                            <span>Completed Contracts: 1</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-3 h-3 rounded-full bg-blue-400'></div>
-                            <span>Ongoing Delivery: 1</span>
-                        </div>
-                    </div>
-                </div>
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 bg-accent/50 p-3 rounded-lg hover:bg-accent transition-colors duration-200"
+          >
+            <span className="text-lg">Profile</span>
+          </Link>
 
-                {/* Language Selector */}
-                <div>
-                    <button className='flex items-center gap-4 w-full bg-white bg-opacity-10 p-4 rounded-xl'>
-                        <Globe size={24} />
-                        <span className='text-xl'>Language</span>
-                    </button>
-                    <select className='mt-2 w-full p-3 rounded-lg bg-gray-800 text-white text-lg'>
-                        <option value="English">English</option>
-                        <option value="Hindi">Hindi</option>
-                        <option value="Marathi">Marathi</option>
-                        <option value="Tamil">Tamil</option>
-                        <option value="Telugu">Telugu</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className='mt-8 space-y-4'>
-                <div className='flex items-center gap-4 bg-white bg-opacity-10 p-4 rounded-xl'>
-                    <User size={24} />
-                    <span className='text-xl' >Farmer Name</span>
-                </div>
-
-                <Link 
-                    href="/profile"
-                    className="flex items-center gap-4 bg-white bg-opacity-10 p-4 rounded-xl"
-                >
-                    <span className='text-xl'>Profile</span>
-                </Link>
-
-                <button className="flex items-center gap-4 w-full bg-red-500 bg-opacity-80 p-4 rounded-xl">
-                    <LogOut size={24} />
-                    <span className='text-xl'>Sign Out</span>
-                </button>
-            </div>
+          <button className="flex items-center gap-3 w-full bg-destructive text-destructive-foreground p-3 rounded-lg hover:bg-destructive/90 transition-colors duration-200">
+            <LogOut size={20} />
+            <span className="text-lg">Sign Out</span>
+          </button>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
+
+const NavItem = ({ icon, label }) => (
+  <button className="flex items-center gap-3 w-full bg-accent/50 p-3 rounded-lg hover:bg-accent transition-colors duration-200">
+    {icon}
+    <span className="text-lg">{label}</span>
+  </button>
+);
+
+const StatusItem = ({ color, label }) => (
+  <div className="flex items-center gap-2">
+    <div className={`w-2 h-2 rounded-full ${color}`}></div>
+    <span>{label}</span>
+  </div>
+);
 
 export default SideBar;
