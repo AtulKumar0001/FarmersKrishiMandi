@@ -14,14 +14,14 @@ export default function SiteHeader() {
     <header className="w-full border-b border-border/40 bg-background/95 py-4">
       <div className="container max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
         <Link className="flex items-center space-x-2" href="/">
-          <span className="font-bold text-2xl text-primary text-white">
-          <Image
-              height={60}
-              width={60}
-              alt='logo'
-              src="/assets/logo.png"
-              className="rounded-full"
-          />
+          <span className="font-bold text-2xl text-primary text-white flex px-2">
+            <Image
+                height={60}
+                width={60}
+                alt='logo'
+                src="/assets/logo.png"
+                className="rounded-full"
+            />
             <span>KRISHIमंडी</span>
           </span>
         </Link>
@@ -30,7 +30,7 @@ export default function SiteHeader() {
             <Link
               key={i}
               href={item.href}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200 relative group"
+              className="text-sm  font-medium text-muted-foreground hover:text-red-100 transition-colors duration-200 relative group"
             >
               {item.title}
               <span className="absolute left-0 bottom-0 w-full h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
@@ -51,5 +51,5 @@ export default function SiteHeader() {
         </div>
       </div>
     </header>
-  );
+  );
 }
