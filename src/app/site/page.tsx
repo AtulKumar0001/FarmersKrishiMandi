@@ -45,11 +45,11 @@ export default function Home() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center text-white">
-        <Image
-          src="/hero-image.jpg"
-          alt="Farming landscape"
-          layout="fill"
-          objectFit="cover"
+      <Image 
+          src="/hero-image.jpg" 
+          alt="Farming landscape" 
+          fill
+          style={{ objectFit: 'cover' }}
           className="z-0"
         />
         <div className="z-10 text-center">
