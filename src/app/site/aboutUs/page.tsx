@@ -20,7 +20,7 @@ export default function About() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       {/* Hero Section */}
       <section className="relative h-[50vh] flex items-center justify-center text-white">
-        <Image src="/about-hero.jpg" alt="Farm landscape" layout="fill" objectFit="cover" className="z-0" />
+        <Image src="/pexels-alejandro-barron-21404-96715.jpg" alt="Farm landscape" layout="fill" objectFit="cover" className="z-0" />
         <div className="z-10 text-center">
           <h1 className="text-4xl font-bold mb-4">About Us</h1>
           <p className="text-xl">Connecting Farmers and Buyers for a Sustainable Future</p>
@@ -61,7 +61,7 @@ export default function About() {
           <h2 className="text-3xl font-bold text-center mb-8">Our Story</h2>
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
-              <Image src="/our-story.jpg" alt="Farmers in a field" width={600} height={400} className="rounded-lg" />
+              <Image src="/pexels-tomfisk-1595108.jpg" alt="Farmers in a field" width={600} height={400} className="rounded-lg" />
             </div>
             <div className="md:w-1/2">
               <p className="text-lg mb-4">
@@ -87,7 +87,7 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
               <div key={index} className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center">
-                <Image src={member.image} alt={member.name} width={200} height={200} className="rounded-full mx-auto mb-4" />
+                <Image src="/pexels-olly-774909.jpg" alt={member.name} width={200} height={200} className="rounded-full mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{member.role}</p>
               </div>
