@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function SiteHeader() {
   const navLinks = [
-    { title: "About Us", href: "/aboutUs" },
+    { title: "About Us", href: "/site/aboutUs" },
     { title: "Contact Us", href: "/contactUs" },
     { title: "Community", href: "/community" },
   ];
@@ -51,5 +51,5 @@ export default function SiteHeader() {
         </div>
       </div>
     </header>
-  );
+  );
 }
