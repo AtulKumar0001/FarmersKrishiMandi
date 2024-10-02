@@ -20,15 +20,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-      <ThemeProvider
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           <SiteHeader />
-        <div className="">{children}</div>
-      </ThemeProvider>
+          <div className="">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   );

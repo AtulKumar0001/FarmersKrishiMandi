@@ -5,9 +5,9 @@ import Image from "next/image";
 
 export default function SiteHeader() {
   const navLinks = [
+    { title: "Home", href: "/site" },
     { title: "About Us", href: "/site/aboutUs" },
-    { title: "Contact Us", href: "/contactUs" },
-    { title: "Community", href: "/community" },
+    { title: "contactUs", href: "/site/contactUs" },
   ];
 
   return (
