@@ -2,6 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import { FaLeaf, FaHandshake, FaBalanceScale } from "react-icons/fa";
+import Link from "next/link";
 
 const values = [
   {
@@ -157,7 +158,9 @@ export default function About() {
             connecting!
           </p>
           <button className="bg-white text-green-500 hover:bg-gray-100 font-bold py-2 px-6 rounded-full text-lg">
-            Get Started
+            <Link href={"/login"}>
+              <span>Get Started</span>
+            </Link>
           </button>
         </div>
       </section>

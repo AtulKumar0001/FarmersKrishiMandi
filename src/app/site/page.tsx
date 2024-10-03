@@ -8,6 +8,7 @@ import {
   FaMicrophone,
   FaCloudSun,
 } from "react-icons/fa";
+import Link from "next/link";
 
 const features = [
   {
@@ -57,7 +58,9 @@ export default function Home() {
             Empowering Farmers with Fair Contracts and Secure Payments
           </h1>
           <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-            Get Started
+            <Link href={"/login"}>
+            <span>Get Started</span>
+            </Link>
           </button>
         </div>
       </section>

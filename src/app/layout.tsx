@@ -26,7 +26,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SiteHeader />
+          <SiteHeader userLogged={false} />
           <div className="">{children}</div>
         </ThemeProvider>
       </body>

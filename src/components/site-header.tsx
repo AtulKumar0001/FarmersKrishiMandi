@@ -1,9 +1,11 @@
+"use client";
 import Link from "next/link";
 import React from "react";
 import { ModeToggle } from "./mode-toggle";
 import Image from "next/image";
+import { Button } from "./ui/button";
 
-export default function SiteHeader() {
+export default function SiteHeader({ userLogged }: { userLogged: boolean }) {
   const navLinks = [
     { title: "Home", href: "/site" },
     { title: "About Us", href: "/site/aboutUs" },
@@ -16,11 +18,11 @@ export default function SiteHeader() {
         <Link className="flex items-center space-x-2" href="/">
           <span className="font-bold text-2xl text-primary text-white flex px-2">
             <Image
-                height={60}
-                width={60}
-                alt='logo'
-                src="/assets/logo.png"
-                className="rounded-full"
+              height={60}
+              width={60}
+              alt="logo"
+              src="/assets/logo.png"
+              className="rounded-full"
             />
             <span>KRISHIमंडी</span>
           </span>
@@ -48,6 +50,21 @@ export default function SiteHeader() {
             <option>FR</option>
             <option>AR</option>
           </select>
+          {userLogged ?<Button
+            type="submit"
+            className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
+          >
+            <Link href={"/logout"}>
+              <span>Logout</span>
+            </Link>
+          </Button> : <Button
+            type="submit"
+            className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
+          >
+            <Link href={"/login"}>
+              <span>Login</span>
+            </Link>
+          </Button>}
         </div>
       </div>
     </header>
