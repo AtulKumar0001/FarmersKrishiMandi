@@ -34,7 +34,6 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  console.log(formData)
   const supabase = createClient()
 
   // type-casting here for convenience
@@ -43,6 +42,8 @@ export async function signup(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   }
+
+  console.log(data)
 
   const { error } = await supabase.auth.signUp(data)
 

@@ -4,8 +4,11 @@ import React from "react";
 import { ModeToggle } from "./mode-toggle";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { logout } from "@/app/logout/actions";
 
-export default function SiteHeader({ userLogged }: { userLogged: boolean }) {
+export default function SiteHeader() {
+  const { isLoggedIn } = useAuth();
   const navLinks = [
     { title: "Home", href: "/site" },
     { title: "About Us", href: "/site/aboutUs" },
@@ -50,21 +53,25 @@ export default function SiteHeader({ userLogged }: { userLogged: boolean }) {
             <option>FR</option>
             <option>AR</option>
           </select>
-          {userLogged ?<Button
-            type="submit"
-            className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
-          >
-            <Link href={"/logout"}>
-              <span>Logout</span>
-            </Link>
-          </Button> : <Button
-            type="submit"
-            className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
-          >
-            <Link href={"/login"}>
-              <span>Login</span>
-            </Link>
-          </Button>}
+          {isLoggedIn ? (
+            <form action={logout}>
+              <Button
+                type="submit"
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
+              >
+                logout
+              </Button>
+            </form>
+          ) : (
+            <Button
+              type="submit"
+              className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
+            >
+              <Link href={"/login"}>
+                <span>Login</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

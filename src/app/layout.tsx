@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from '@/contexts/AuthContext';
 import SiteHeader from "@/components/site-header";
 
 const inter = JetBrains_Mono({ subsets: ["latin"] });
-// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,15 +20,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SiteHeader userLogged={false} />
-          <div className="">{children}</div>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SiteHeader/>
+            <div className="">{children}</div>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
