@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { login, signup } from "./actions";
+import { login, signup, loginWithGoogle } from "./actions";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -12,6 +12,16 @@ export default function SignUp() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleGoogleLogin = async () => {
+    const result = await loginWithGoogle();
+    if (result.url) {
+      window.location.href = result.url;
+    } else if (result.error) {
+      console.error('Error logging in with Google:', result.error);
+      // Handle error (e.g., show error message to user)
+    }
   };
 
   return (
@@ -62,7 +72,10 @@ export default function SignUp() {
               className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
               formAction={async (formData) => {
                 const result = await signup(formData);
-                console.log(result);
+                if (result?.error) {
+                  console.error(result.error);
+                  // Handle error (e.g., show error message to user)
+                }
               }}
             >
               Sign up
@@ -70,14 +83,25 @@ export default function SignUp() {
             <button
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
               formAction={async (formData) => {
-                const result = login(formData);
-                console.log(result);
+                const result = await login(formData);
+                if (result?.error) {
+                  console.error(result.error);
+                  // Handle error (e.g., show error message to user)
+                }
               }}
             >
               Log in
             </button>
           </div>
         </form>
+        <div className="mt-4">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+          >
+            Sign in with Google
+          </button>
+        </div>
         <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
           By signing up, you agree to our{" "}
           <Link href="/" className="text-green-500 hover:underline">
