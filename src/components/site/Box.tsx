@@ -2,8 +2,15 @@
 
 import React from 'react';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+interface ContractBoxProps {
+    image: React.ReactNode;
+    date: string;
+    title: string;
+    description: string;
+    status: 'Completed' | 'In Progress' | 'Pending';
+  }
 
-const ContractBox = ({ image, date, title, description, status }) => {
+  const ContractBox: React.FC<ContractBoxProps> = ({ image, date, title, description, status }) => {
     // Status configuration
     const statusConfig = {
         'Completed': { color: 'text-green-600 dark:text-green-400', icon: <CheckCircle className="text-green-600 dark:text-green-400" /> },
