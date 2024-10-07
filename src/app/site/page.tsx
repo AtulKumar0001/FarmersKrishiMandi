@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 import React from "react";
 import Image from "next/image";
 import {
@@ -43,33 +43,33 @@ const testimonials = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center text-white">
-      <Image 
+        <Image 
           src="/hero-image.jpg" 
           alt="Farming landscape" 
-          fill
-          style={{ objectFit: 'cover' }}
+          layout="fill"
+          objectFit="cover"
           className="z-0"
         />
-        <div className="z-10 text-center">
-          <h1 className="text-4xl font-bold mb-4">
+        <div className="z-10 text-center px-4">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">
             Empowering Farmers with Fair Contracts and Secure Payments
           </h1>
-          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-            <Link href={"/login"}>
-            <span>Get Started</span>
+          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 sm:mt-0">
+            <Link href="/login">
+              <span>Get Started</span>
             </Link>
           </button>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-100 dark:bg-gray-800">
+      <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Our Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -88,11 +88,11 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-16">
+      <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">How It Works</h2>
           {/* Add your infographic or flowchart here */}
-          <div className="bg-gray-200 dark:bg-gray-700 p-8 rounded-lg">
+          <div className="bg-gray-200 dark:bg-gray-700 p-6 sm:p-8 rounded-lg">
             <p className="text-center">
               Insert your infographic or flowchart here
             </p>
@@ -101,12 +101,12 @@ export default function Home() {
       </section>
 
       {/* AI Assistance & Weather Alerts Section */}
-      <section className="py-16 bg-gray-100 dark:bg-gray-800">
+      <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
             Smart Farming Features
           </h2>
-          <div className="flex justify-center space-x-12">
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0 md:space-x-12">
             <div className="text-center">
               <FaMicrophone className="text-5xl text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">
@@ -124,12 +124,12 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16">
+      <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
             What Our Users Say
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
@@ -147,9 +147,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 dark:bg-gray-950 text-white py-8">
+      <footer className="bg-gray-800 dark:bg-gray-950 text-white py-6 sm:py-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="w-full md:w-1/3 mb-6 md:mb-0">
               <h3 className="text-xl font-bold mb-2">Stay Updated</h3>
               <form className="flex">

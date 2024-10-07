@@ -1,24 +1,15 @@
-'use client'
-import MainPage from "@/components/site/MainPage";
-import SideBar from "@/components/site/SideBar";
-import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import FarmerRegistration from "@/components/Forms/FarmersData";
+import { createClient } from "@/utils/supabase/server";
+import React from "react";
 
-export default function Home() {
-  const { setIsLoggedIn } = useAuth();
+const Page = async () => {
+    // check if the farmer has already filled the form, if yes the forward to the main
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  console.log(user);
+  return <FarmerRegistration />;
+};
 
-  useEffect(() => {
-    setIsLoggedIn(true);
-    return () => setIsLoggedIn(false);
-  }, [setIsLoggedIn]);
-  return (
-    <div className='flex flex-col md:flex-row'>
-      <div className='md:w-1/4'>
-        <SideBar />
-      </div>
-      <div className='md:w-3/4'>
-        <MainPage />
-      </div>
-    </div>
-  );
-}
+export default Page;

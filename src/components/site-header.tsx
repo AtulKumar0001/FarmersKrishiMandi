@@ -47,11 +47,17 @@ export default function SiteHeader() {
           <select
             id="locale"
             name="locale"
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary"
+            className="h-9 rounded-md border border-input bg-white dark:bg-background text-black dark:text-white px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:bg-gray-100 dark:focus:bg-gray-800"
           >
-            <option>EN</option>
-            <option>FR</option>
-            <option>AR</option>
+            <option className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
+              EN
+            </option>
+            <option className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
+              FR
+            </option>
+            <option className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
+              AR
+            </option>
           </select>
           {isLoggedIn ? (
             <form action={logout}>

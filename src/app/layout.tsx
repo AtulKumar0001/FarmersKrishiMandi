@@ -3,7 +3,6 @@ import "./globals.css";
 import { JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from '@/contexts/AuthContext';
-import SiteHeader from "@/components/site-header";
 
 const inter = JetBrains_Mono({ subsets: ["latin"] });
 
@@ -27,8 +26,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SiteHeader/>
-            <div className="">{children}</div>
+            {children}
           </ThemeProvider>
         </AuthProvider>
       </body>
