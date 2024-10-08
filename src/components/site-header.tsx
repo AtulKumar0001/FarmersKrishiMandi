@@ -12,7 +12,7 @@ export default function SiteHeader() {
   const navLinks = [
     { title: "Home", href: "/site" },
     { title: "About Us", href: "/site/aboutUs" },
-    { title: "contactUs", href: "/site/contactUs" },
+    { title: "ContactUs", href: "/site/contactUs" },
   ];
 
   return (

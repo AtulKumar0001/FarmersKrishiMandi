@@ -1,10 +1,12 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Compass, ChevronsUpDown } from 'lucide-react'
+import { Compass } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '../ui/separator'
+import { logout } from '@/app/logout/actions'
+import { useRouter } from 'next/navigation'
 
 type Props = {
   defaultOpen?: boolean
@@ -12,11 +14,16 @@ type Props = {
   sidebarOpt: { id: string; name: string; link: string; icon: React.ReactNode }[]
 }
 
-const MenuOptions = ({ defaultOpen, sidebarLogo, sidebarOpt }: Props) => {
-  console.log("MenuOptions rendering", { defaultOpen, sidebarLogo, sidebarOpt });
+const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout()
+    router.refresh()
+  }
 
   return (
-    <div className="bg-background/80 backdrop-blur-xl fixed top-0 left-0 h-full w-[300px] border-r-[1px] p-6">
+    <div className="bg-background/80 bg-gray-900 backdrop-blur-xl fixed top-0 left-0 h-full w-[300px] border-r-[1px] p-6">
       <div className="flex flex-col h-full">
         <div className="mb-6 h-20 relative">
           <Image
@@ -35,7 +42,6 @@ const MenuOptions = ({ defaultOpen, sidebarLogo, sidebarOpt }: Props) => {
               <span className="text-muted-foreground text-sm">Main View</span>
             </div>
           </div>
-          <ChevronsUpDown size={16} className="text-muted-foreground" />
         </Button>
 
         <p className="text-muted-foreground text-xs mb-2">MENU LINKS</p>
@@ -56,6 +62,13 @@ const MenuOptions = ({ defaultOpen, sidebarLogo, sidebarOpt }: Props) => {
             ))}
           </ul>
         </nav>
+        <Button
+          variant="destructive"
+          className="w-full mt-auto mb-4 hover:bg-red-600 transition-colors"
+          onClick={handleLogout}
+        >
+          <span>Sign out</span>
+        </Button>
       </div>
     </div>
   )
