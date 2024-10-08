@@ -49,8 +49,8 @@ export default function Home() {
         <Image 
           src="/hero-image.jpg" 
           alt="Farming landscape" 
-          layout="fill"
-          objectFit="cover"
+          fill
+          style={{ objectFit: 'cover' }}
           className="z-0"
         />
         <div className="z-10 text-center px-4">

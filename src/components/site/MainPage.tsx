@@ -8,7 +8,7 @@ import { CloudSun } from 'lucide-react';
 
 const MainPage = () => {
     return (
-        <div className='flex flex-col items-center w-full font-sans p-6 bg-gray-100 dark:bg-gray-900 h-screen'>
+        <div className='flex flex-col items-center w-full font-sans p-6 bg-gray-100 dark:bg-gray-900 h-screen pt-0'>
             <div className='w-full max-w-4xl'>
                 <div className="flex justify-between items-center mb-4">
                     <div>
