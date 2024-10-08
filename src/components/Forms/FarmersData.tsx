@@ -1,5 +1,12 @@
 'use client'
 import React, { useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 // List of common crops in India
 const cropOptions = [
@@ -7,7 +14,12 @@ const cropOptions = [
   'Fruits', 'Vegetables', 'Tea', 'Coffee', 'Jute', 'Rubber', 'Spices', 'Other'
 ]
 
-export default function FarmerRegistration() {
+interface FarmerRegistrationProps {
+  userId: string;
+}
+
+export default function FarmerRegistration({ userId }: FarmerRegistrationProps) {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: '',
     aadharNumber: '',
@@ -17,6 +29,7 @@ export default function FarmerRegistration() {
     crops: [] as string[],
     otherCrop: ''
   })
+  const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -33,21 +46,44 @@ export default function FarmerRegistration() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Handle form submission here (e.g., send data to an API)
-    console.log('Form submitted:', formData)
+    setError(null)
 
+    try {
+      const { data, error } = await supabase
+        .from('farmer_registrations')
+        .insert({
+          user_id: userId,
+          name: formData.name,
+          aadhar_number: formData.aadharNumber,
+          address: formData.address,
+          state: formData.state,
+          pincode: formData.pincode,
+          crops: formData.crops,
+          other_crop: formData.otherCrop || null
+        })
 
-    // re route to main
-    
+      if (error) throw error
+
+      console.log('Registration successful:', data)
+      router.push('farmer/Main') // Redirect to main page after successful registration
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setError('An error occurred while submitting the form. Please try again.')
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+<div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="px-4 py-5 sm:p-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Farmer Registration</h2>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
