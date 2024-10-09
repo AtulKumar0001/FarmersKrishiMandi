@@ -30,7 +30,7 @@ const Page = async () => {
 
   // If the farmer has already registered, redirect to the main page or their dashboard
   if (farmerData) {
-    redirect("/farmer/Main"); // Adjust this path to your main dashboard route
+    redirect(`/farmer/${user.id}`); // Adjust this path to your main dashboard route
   } 
     
     return <FarmerRegistration userId={user.id} />;

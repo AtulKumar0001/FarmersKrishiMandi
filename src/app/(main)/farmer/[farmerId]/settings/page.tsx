@@ -1,8 +1,8 @@
 // app/settings/page.tsx
 'use client'
 
+import Settings from '@/components/settings/Settings'
 import React from 'react'
-import Settings from '../../components/settings/Settings'
 
 
 // Mock function to get the current user ID.

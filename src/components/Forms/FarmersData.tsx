@@ -67,7 +67,7 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
       if (error) throw error
 
       console.log('Registration successful:', data)
-      router.push('farmer/Main') // Redirect to main page after successful registration
+      router.push(`/farmer/${userId}`) // Redirect to main page after successful registration
     } catch (error) {
       console.error('Error submitting form:', error)
       setError('An error occurred while submitting the form. Please try again.')
