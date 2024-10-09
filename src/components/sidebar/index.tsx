@@ -10,7 +10,7 @@ const Sidebar = ({farmerId}:Props) => {
     { id: '1', name: 'Home', link: `/farmer/${farmerId}`, icon: <Home size={20} /> },
     { id: '2', name: 'Users', link: '/users', icon: <Users size={20} /> },
     { id: '3', name: 'Settings', link: `/farmer/${farmerId}/settings`, icon: <Settings size={20} /> },
-    { id: '4', name: 'Help', link: '/help', icon: <HelpCircle size={20} /> },
+    { id: '4', name: 'Help', link: `/farmer/${farmerId}/help`, icon: <HelpCircle size={20} /> },
   ]
 
   return (
