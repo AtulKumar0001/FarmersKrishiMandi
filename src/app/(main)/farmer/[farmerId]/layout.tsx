@@ -2,6 +2,7 @@ import BlurPage from '@/components/global/blur-page'
 import Sidebar from '@/components/sidebar'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import InfoBar from '../../../../components/global/infobar'
 
 
 type Props = {
@@ -22,6 +23,7 @@ const layout = async ({ children }: Props) => {
     <div className="h-screen overflow-hidden">
       <Sidebar farmerId = {user.id}  />
       <div className="md:pl-[300px]">
+        <InfoBar/>
         <div className="relative">
           <BlurPage>{children}</BlurPage>
         </div>

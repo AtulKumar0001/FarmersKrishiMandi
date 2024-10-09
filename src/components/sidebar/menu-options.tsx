@@ -61,7 +61,7 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
               <li key={option.id}>
                 <Link
                   href={option.link}
-                  className="flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors border border-white"
+                  className="flex items-center gap-3 hover:text-black dark:hover:text-white p-2 rounded-md hover:bg-muted transition-colors border border-white"
                 >
                   {option.icon}
                   <span>{option.name}</span>
