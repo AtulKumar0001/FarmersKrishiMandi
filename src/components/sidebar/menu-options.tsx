@@ -1,26 +1,31 @@
-'use client'
+"use client";
 
-import { Button } from '../ui/button'
-import { Compass } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Separator } from '../ui/separator'
-import { logout } from '@/app/logout/actions'
-import { useRouter } from 'next/navigation'
+import { Button } from "../ui/button";
+import { Compass } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Separator } from "../ui/separator";
+import { logout } from "@/app/logout/actions";
+import { useRouter } from "next/navigation";
 
 type Props = {
-  defaultOpen?: boolean
-  sidebarLogo: string
-  sidebarOpt: { id: string; name: string; link: string; icon: React.ReactNode }[]
-}
+  defaultOpen?: boolean;
+  sidebarLogo: string;
+  sidebarOpt: {
+    id: string;
+    name: string;
+    link: string;
+    icon: React.ReactNode;
+  }[];
+};
 
 const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogout = async () => {
-    await logout()
-    router.refresh()
-  }
+    await logout();
+    router.refresh();
+  };
 
   return (
     <div className="bg-background/80 bg-gray-900 backdrop-blur-xl fixed top-0 left-0 h-full w-[300px] border-r-[1px] p-6">
@@ -34,7 +39,10 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
           />
         </div>
 
-        <Button className="w-full mb-6 flex items-center justify-between py-6" variant="ghost">
+        <Button
+          className="w-full mb-6 flex items-center justify-between py-6"
+          variant="ghost"
+        >
           <div className="flex items-center text-left gap-2">
             <Compass />
             <div className="flex flex-col">
@@ -53,7 +61,7 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
               <li key={option.id}>
                 <Link
                   href={option.link}
-                  className="flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors border border-white"
                 >
                   {option.icon}
                   <span>{option.name}</span>
@@ -64,14 +72,14 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
         </nav>
         <Button
           variant="destructive"
-          className="w-full mt-auto mb-4 hover:bg-red-600 transition-colors"
+          className="w-full mt-3 mb-4 hover:bg-red-600 transition-colors"
           onClick={handleLogout}
         >
           <span>Sign out</span>
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MenuOptions
+export default MenuOptions;
