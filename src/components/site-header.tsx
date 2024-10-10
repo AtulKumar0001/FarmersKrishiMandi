@@ -18,7 +18,7 @@ export default function SiteHeader() {
   ];
 
   return (
-    <header className="w-full border-b border-border/40 bg-background/95 py-4">
+    <header className="w-full border-b dark:border-border/40 dark:bg-background/95  bg-white py-4">
       <div className="container max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
         <Link className="flex items-center space-x-2" href="/">
           <span className="font-bold text-2xl text-primary text-white flex px-2">
@@ -27,9 +27,9 @@ export default function SiteHeader() {
               width={60}
               alt="logo"
               src="/assets/logo.png"
-              className="rounded-full"
+              className="bg-gray-200 dark:bg-transparent p-1"
             />
-            <span>KRISHIमंडी</span>
+            <span className="text-black dark:text-white">KRISHIमंडी</span>
           </span>
         </Link>
         <nav className="flex items-center space-x-8">
@@ -37,7 +37,7 @@ export default function SiteHeader() {
             <Link
               key={i}
               href={item.href}
-              className="text-sm  font-medium text-muted-foreground hover:text-red-100 transition-colors duration-200 relative group"
+              className="text-sm font-medium text-muted-foreground hover:text-black dark:hover:text-white transition-colors duration-200 relative group text-black "
             >
               {item.title}
               <span className="absolute left-0 bottom-0 w-full h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
@@ -49,7 +49,7 @@ export default function SiteHeader() {
           <select
             id="locale"
             name="locale"
-            className="h-9 rounded-md border border-input bg-white dark:bg-background text-black dark:text-white px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:bg-gray-100 dark:focus:bg-gray-800"
+            className="h-9 rounded-md border border-input bg-white dark:bg-background text-black dark:text-white px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:bg-gray-100 dark:focus:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
           >
             <option className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
               EN
@@ -73,7 +73,7 @@ export default function SiteHeader() {
           >
             <Button
               type="submit"
-              className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm"
+              className="px-4 py-2 rounded-md bg-white text-black border border-black dark:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm hover:text-white dark:bg-gray-950 dark:hover:bg-gray-700 dark:border-gray-700 dark:text-white"
             >
               Login
             </Button>

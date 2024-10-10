@@ -31,7 +31,7 @@ const InfoBar = () => {
   const [notifications] = useState(dummyNotifications);
 
   return (
-    <div className="fixed z-[20] top-0 left-[300px] right-0 p-4 bg-background/95 backdrop-blur-md bg-blue-900 flex items-center justify-between">
+    <div className="fixed z-[20] top-0 left-[300px] right-0 p-4 bg-background/95 backdrop-blur-md dark:bg-gray-800 bg-white flex items-center justify-between">
       <div className="flex-grow"></div>
       <div className="flex items-center gap-4">
         <Sheet>

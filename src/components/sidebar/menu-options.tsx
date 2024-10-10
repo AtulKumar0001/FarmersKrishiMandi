@@ -28,7 +28,7 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
   };
 
   return (
-    <div className="bg-background/80 bg-gray-900 backdrop-blur-xl fixed top-0 left-0 h-full w-[300px] border-r-[1px] p-6">
+    <div className=" bg-white backdrop-blur-xl fixed top-0 left-0 h-full w-[300px] border-r-[1px] p-6 dark:bg-gray-800">
       <div className="flex flex-col h-full">
         <div className="mb-6 h-20 relative">
           <Image
@@ -44,15 +44,15 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
           variant="ghost"
         >
           <div className="flex items-center text-left gap-2">
-            <Compass />
+            <Compass className="text-black dark:text-white" />
             <div className="flex flex-col">
-              <span>Dashboard</span>
-              <span className="text-muted-foreground text-sm">Main View</span>
+              <span className="text-black dark:text-white">Dashboard</span>
+              <span className="text-muted-foreground text-sm ">Main View</span>
             </div>
           </div>
         </Button>
 
-        <p className="text-muted-foreground text-xs mb-2">MENU LINKS</p>
+        <p className="text-muted-foreground text-black text-xs mb-2 dark:text-white">MENU LINKS</p>
         <Separator className="mb-4" />
 
         <nav className="flex-grow">
@@ -61,7 +61,7 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt }: Props) => {
               <li key={option.id}>
                 <Link
                   href={option.link}
-                  className="flex items-center gap-3 hover:text-black dark:hover:text-white p-2 rounded-md hover:bg-muted transition-colors border border-white"
+                  className="flex items-center gap-3 text-black hover:text-white dark:text-white p-2 rounded-md hover:bg-gray-500 transition-colors border border-white"
                 >
                   {option.icon}
                   <span>{option.name}</span>
