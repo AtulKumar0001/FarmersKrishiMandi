@@ -2,8 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
+interface Message {
+  text: string;
+  sender: 'user' | 'ai';
+}
+
 const KrishiGPT: React.FC = () => {
-    const [messages, setMessages] = useState<Array<{ text: string; sender: 'user' | 'ai' }>>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [inputMessage, setInputMessage] = useState('');
     const [isListening, setIsListening] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState('en-US');
@@ -18,7 +23,7 @@ const KrishiGPT: React.FC = () => {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRecognition) {
                 recognitionRef.current = new SpeechRecognition();
                 recognitionRef.current.continuous = true;
