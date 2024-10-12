@@ -19,7 +19,7 @@ const SettingsPage: React.FC = () => {
   return (
   <div className='flex'>
 
-  <Settings userId={userId} />
+   <Settings userId={userId} />
   </div>
   ) 
 }

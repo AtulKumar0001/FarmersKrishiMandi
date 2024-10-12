@@ -16,13 +16,13 @@ const Page = async () => {
 
   // Check if the farmer has already filled the form
   const { data: farmerData, error } = await supabase
-    .from("farmer_registrations")
+    .from("buyer_registrations")
     .select("id")
     .eq("user_id", user.id)
     .maybeSingle(); // Change .single() to .maybeSingle()
 
   if (error && error.code !== "PGRST116") {
-    console.error("Error checking farmer registration:", error);
+    console.error("Error checking buyer registration:", error);
     // Handle the error appropriately
     // You might want to redirect to an error page or show an error message
     return; // or redirect to an error page
@@ -30,7 +30,7 @@ const Page = async () => {
 
   // If the farmer has already registered, redirect to the main page or their dashboard
   if (farmerData) {
-    redirect(`/farmer/${user.id}`); // Adjust this path to your main dashboard route
+    redirect(`/buyer/${user.id}`); // Adjust this path to your main dashboard route
   } 
     
     return <BuyerRegistration userId={user.id} />;
