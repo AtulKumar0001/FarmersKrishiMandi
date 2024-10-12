@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 // import { useAuth } from "@/contexts/AuthContext";
 // import { logout } from "@/app/logout/actions";
-import { loginWithGoogle } from "@/app/login/actions";
 import { redirect } from "next/navigation";
 
 export default function SiteHeader() {
@@ -62,13 +61,8 @@ export default function SiteHeader() {
             </option>
           </select>
           <form
-            action={async () => {
-              const result = await loginWithGoogle();
-              if (result.error) {
-                console.log("Error with login");
-              } else if (result.url) {
-                redirect("/login");
-              }
+            action={() => {
+              redirect("/login");
             }}
           >
             <Button

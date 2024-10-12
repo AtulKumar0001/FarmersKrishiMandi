@@ -47,13 +47,13 @@ export async function signup(formData: FormData) {
   redirect('/')
 }
 
-export async function loginWithGoogle() {
+export async function loginWithGoogleFarmer() {
   const supabase = createClient()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback/farmer`,
     },
   })
 
@@ -62,6 +62,23 @@ export async function loginWithGoogle() {
   }
   return { url: data.url }
 }
+
+export async function loginWithGoogleBuyer() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback/buyer`,
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+  return { url: data.url }
+}
+
 
 export async function logout() {
   const supabase = createClient()

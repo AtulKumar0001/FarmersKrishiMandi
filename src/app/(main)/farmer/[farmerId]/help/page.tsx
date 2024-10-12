@@ -112,8 +112,16 @@ const KrishiGPT: React.FC = () => {
     };
 
     const formatAIResponse = (response: string) => {
-        // Remove asterisks and replace them with bullet points
-        return response.replace(/\*#/g, '•');
+        // Remove markdown-style formatting
+        return response
+            .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
+            .replace(/(\*|_)(.*?)\1/g, '$2')    // Italic
+            .replace(/^(#+)\s+/gm, '')          // Headers
+            .replace(/^[-*+]\s+/gm, '• ')       // Unordered lists
+            .replace(/^\d+\.\s+/gm, '• ')       // Ordered lists
+            .replace(/`([^`]+)`/g, '$1')        // Inline code
+            .replace(/```[\s\S]*?```/g, '')     // Code blocks
+            .trim();
     };
 
     const toggleListening = () => {
