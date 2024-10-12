@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { getGeneratedContent } from '@/utils/gemini'; // Import the generateContent function
 
 interface Message {
   text: string;
@@ -52,21 +53,25 @@ const KrishiGPT: React.FC = () => {
         }
     }, [selectedLanguage]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (inputMessage.trim() === '') return;
         sendMessage(inputMessage);
     };
 
-    const sendMessage = (text: string) => {
+    const sendMessage = async (text: string) => {
         setMessages(prev => [...prev, { text, sender: 'user' }]);
         setInputMessage('');
 
-        // Simulate AI response (replace with actual AI integration)
-        setTimeout(() => {
-            const aiResponse = "This is a simulated AI response.";
+        try {
+            // Generate AI response using the imported function
+            const aiResponse = await getGeneratedContent(text);
+            console.log(aiResponse)
             setMessages(prev => [...prev, { text: aiResponse, sender: 'ai' }]);
-        }, 1000);
+        } catch (error) {
+            console.error("Error generating AI response:", error);
+            setMessages(prev => [...prev, { text: "Sorry, I couldn't generate a response. Please try again.", sender: 'ai' }]);
+        }
     };
 
     const toggleListening = () => {
