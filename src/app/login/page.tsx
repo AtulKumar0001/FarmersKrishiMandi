@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { login, signup, loginWithGoogle } from "./actions";
+import { login, signup, loginWithGoogleFarmer, loginWithGoogleBuyer } from "./actions";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -14,8 +14,8 @@ export default function SignUp() {
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleGoogleLogin = async () => {
-    const result = await loginWithGoogle();
+  const handleGoogleLoginFarmer = async () => {
+    const result = await loginWithGoogleFarmer();
     if (result.url) {
       window.location.href = result.url;
     } else if (result.error) {
@@ -23,6 +23,15 @@ export default function SignUp() {
       // Handle error (e.g., show error message to user)
     }
   };
+  const handleGoogleLoginBuyer = async() =>{
+    const result = await loginWithGoogleBuyer();
+    if (result.url) {
+      window.location.href = result.url;
+    } else if (result.error) {
+      console.error('Error logging in with Google:', result.error);
+      // Handle error (e.g., show error message to user)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-500 dark:bg-gray-900 flex items-center justify-center">
@@ -96,10 +105,16 @@ export default function SignUp() {
         </form>
         <div className="mt-4">
           <button
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleLoginFarmer}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 mb-3"
+          >
+            Sign in with Google as Farmer
+          </button>
+          <button
+            onClick={handleGoogleLoginBuyer}
             className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
           >
-            Sign in with Google
+            Sign in with Google as Buyer
           </button>
         </div>
         <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">

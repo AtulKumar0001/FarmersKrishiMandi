@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
-// import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -8,9 +7,33 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (error) {
+      console.error('Error exchanging code for session:', error)
+      return NextResponse.redirect(`${requestUrl.origin}/error`)
+    }
+
+    // Check user role from the database
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.user?.id)
+      .single()
+
+    if (userError) {
+      console.error('Error fetching user role:', userError)
+      return NextResponse.redirect(`${requestUrl.origin}/error`)
+    }
+
+    // Redirect based on user role
+    if (userData?.role === 'buyer') {
+      return NextResponse.redirect(`${requestUrl.origin}/buyer/`)
+    } else if (userData?.role === 'farmer') {
+      return NextResponse.redirect(`${requestUrl.origin}/farmer/${data.user?.id}`)
+    }
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${requestUrl.origin}/farmer/`)
+  // Fallback redirect if no code or unrecognized role
+  return NextResponse.redirect(`${requestUrl.origin}/`)
 }
