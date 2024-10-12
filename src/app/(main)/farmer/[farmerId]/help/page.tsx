@@ -17,6 +17,11 @@ const KrishiGPT: React.FC = () => {
     const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [autoSpeak, setAutoSpeak] = useState(false);
+    const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+    const [voiceError, setVoiceError] = useState<string | null>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,10 +58,39 @@ const KrishiGPT: React.FC = () => {
         }
     }, [selectedLanguage]);
 
+    useEffect(() => {
+        const loadVoices = () => {
+            const availableVoices = window.speechSynthesis.getVoices();
+            setVoices(availableVoices);
+            
+            const hindiVoice = availableVoices.find(voice => voice.lang.startsWith('hi-'));
+            if (hindiVoice) {
+                setSelectedVoice(hindiVoice);
+                setVoiceError(null);
+            } else {
+                // Fallback to the first available voice
+                setSelectedVoice(availableVoices[0]);
+                setVoiceError("No Hindi voice found. Using default voice.");
+            }
+        };
+
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        } else {
+            setVoiceError("Speech synthesis not supported in this browser.");
+        }
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (inputMessage.trim() === '') return;
         sendMessage(inputMessage);
+        setInputMessage(''); // Clear input after sending
+        if (isListening) {
+            recognitionRef.current?.stop(); // Stop listening after sending
+            setIsListening(false);
+        }
     };
 
     const sendMessage = async (text: string) => {
@@ -64,14 +98,21 @@ const KrishiGPT: React.FC = () => {
         setInputMessage('');
 
         try {
-            // Generate AI response using the imported function
             const aiResponse = await getGeneratedContent(text);
-            console.log(aiResponse)
-            setMessages(prev => [...prev, { text: aiResponse, sender: 'ai' }]);
+            const formattedResponse = formatAIResponse(aiResponse);
+            setMessages(prev => [...prev, { text: formattedResponse, sender: 'ai' }]);
+            if (autoSpeak) {
+                speakMessage(formattedResponse);
+            }
         } catch (error) {
             console.error("Error generating AI response:", error);
             setMessages(prev => [...prev, { text: "Sorry, I couldn't generate a response. Please try again.", sender: 'ai' }]);
         }
+    };
+
+    const formatAIResponse = (response: string) => {
+        // Remove asterisks and replace them with bullet points
+        return response.replace(/\*#/g, '•');
     };
 
     const toggleListening = () => {
@@ -89,10 +130,32 @@ const KrishiGPT: React.FC = () => {
     };
 
     const speakMessage = (text: string) => {
-        if (typeof window !== 'undefined') {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = selectedLanguage;
-            window.speechSynthesis.speak(utterance);
+        if (typeof window !== 'undefined' && window.speechSynthesis && selectedVoice) {
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                setIsSpeaking(false);
+            } else {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = selectedVoice;
+                utterance.onend = () => setIsSpeaking(false);
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    setVoiceError(`Error speaking: ${event.error}`);
+                    setIsSpeaking(false);
+                };
+                window.speechSynthesis.speak(utterance);
+                setIsSpeaking(true);
+            }
+        } else {
+            setVoiceError("Unable to speak. No voice selected or speech synthesis not supported.");
+        }
+    };
+
+    const handleVoiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const voice = voices.find(v => v.name === event.target.value);
+        if (voice) {
+            setSelectedVoice(voice);
+            setVoiceError(null);
         }
     };
 
@@ -134,15 +197,16 @@ const KrishiGPT: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message, index) => (
                     <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-xs p-3 rounded-lg flex items-center space-x-2 ${message.sender === 'user' ? 'bg-blue-600' : 'bg-gray-700'
-                            }`}>
-                            <p>{message.text}</p>
+                        <div className={`max-w-3xl p-3 rounded-lg ${
+                            message.sender === 'user' ? 'bg-blue-600' : 'bg-gray-700'
+                        }`}>
+                            <p className="whitespace-pre-wrap">{message.text}</p>
                             {message.sender === 'ai' && (
                                 <button
-                                    className="text-gray-300 hover:text-white"
+                                    className="mt-2 text-gray-300 hover:text-white bg-gray-600 hover:bg-gray-500 p-1 rounded"
                                     onClick={() => speakMessage(message.text)}
                                 >
-                                    🔊
+                                    {isSpeaking ? 'Stop Speaking' : 'Speak'}
                                 </button>
                             )}
                         </div>
@@ -152,7 +216,7 @@ const KrishiGPT: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700">
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 mb-2">
                     <input
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}
@@ -170,14 +234,41 @@ const KrishiGPT: React.FC = () => {
                         Send
                     </button>
                 </div>
+                <div className="flex flex-col space-y-2 mt-2">
+                    <div className="flex items-center space-x-2">
+                        <label htmlFor="voiceSelect" className="text-sm text-gray-300">
+                            Select Voice:
+                        </label>
+                        <select
+                            id="voiceSelect"
+                            value={selectedVoice?.name}
+                            onChange={handleVoiceChange}
+                            className="bg-gray-800 text-white p-1 rounded"
+                        >
+                            {voices.map((voice) => (
+                                <option key={voice.name} value={voice.name}>
+                                    {`${voice.name} (${voice.lang})`}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    {voiceError && (
+                        <p className="text-yellow-500 text-sm">{voiceError}</p>
+                    )}
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="autoSpeak"
+                            checked={autoSpeak}
+                            onChange={(e) => setAutoSpeak(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                        <label htmlFor="autoSpeak" className="text-sm text-gray-300">
+                            Auto-speak AI responses
+                        </label>
+                    </div>
+                </div>
             </form>
-
-            <div className="m-4 bg-blue-900 p-4 rounded">
-                <h3 className="font-bold">Tip</h3>
-                <p>
-                    Click the microphone icon to start/stop speech input. The text will appear in the input field as you speak. Click send to submit the message.
-                </p>
-            </div>
         </div>
     );
 };
