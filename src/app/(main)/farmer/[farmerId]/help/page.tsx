@@ -98,8 +98,9 @@ const KrishiGPT: React.FC = () => {
         setInputMessage('');
 
         try {
-            const aiResponse = await getGeneratedContent(text);
-            const formattedResponse = formatAIResponse(aiResponse);
+            const str="word limit maximum 300 words"
+            const aiResponse = await getGeneratedContent(text+str);
+            const formattedResponse = aiResponse.replace(/\*/g, '');
             setMessages(prev => [...prev, { text: formattedResponse, sender: 'ai' }]);
             if (autoSpeak) {
                 speakMessage(formattedResponse);
