@@ -100,7 +100,7 @@ const KrishiGPT: React.FC = () => {
         try {
             const str="word limit maximum 300 words"
             const aiResponse = await getGeneratedContent(text+str);
-            const formattedResponse = aiResponse.replace(/\*/g, '');
+            const formattedResponse = formatAIResponse(aiResponse);
             setMessages(prev => [...prev, { text: formattedResponse, sender: 'ai' }]);
             if (autoSpeak) {
                 speakMessage(formattedResponse);
@@ -112,16 +112,22 @@ const KrishiGPT: React.FC = () => {
     };
 
     const formatAIResponse = (response: string) => {
-        // Remove markdown-style formatting
+        // Remove markdown-style formatting and improve readability
         return response
-            .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
-            .replace(/(\*|_)(.*?)\1/g, '$2')    // Italic
-            .replace(/^(#+)\s+/gm, '')          // Headers
-            .replace(/^[-*+]\s+/gm, '• ')       // Unordered lists
-            .replace(/^\d+\.\s+/gm, '• ')       // Ordered lists
-            .replace(/`([^`]+)`/g, '$1')        // Inline code
-            .replace(/```[\s\S]*?```/g, '')     // Code blocks
-            .trim();
+            .replace(/(\*\*|__)(.*?)\1/g, '$2')  // Remove bold formatting
+            .replace(/(\*|_)(.*?)\1/g, '$2')     // Remove italic formatting
+            .replace(/^(#+)\s+/gm, '')           // Remove headers
+            .replace(/^[-*+]\s+/gm, '• ')        // Convert unordered lists to bullet points
+            .replace(/^\d+\.\s+/gm, '• ')        // Convert ordered lists to bullet points
+            .replace(/`([^`]+)`/g, '$1')         // Remove inline code formatting
+            .replace(/```[\s\S]*?```/g, '')      // Remove code blocks
+            .replace(/\n{3,}/g, '\n\n')          // Reduce multiple newlines to maximum two
+            .split('\n')                         // Split into lines
+            .map(line => line.trim())            // Trim each line
+            .join('\n')                          // Join lines back together
+            .trim()                              // Trim the entire result
+            .replace(/([.!?])\s+/g, '$1\n')      // Add newline after sentences
+            .replace(/\n{3,}/g, '\n\n');         // Again, ensure maximum two consecutive newlines
     };
 
     const toggleListening = () => {
@@ -180,18 +186,18 @@ const KrishiGPT: React.FC = () => {
                             value={selectedLanguage}
                         >
                             <option value="en-IN">English</option>
-                            <option value="hi-IN">Hindi</option>
-                            <option value="pa-IN">Punjabi</option>
-                            <option value="ta-IN">Tamil</option>
-                            <option value="mr-IN">Marathi</option>
-                            <option value="bn-IN">Bengali</option>
-                            <option value="ks-IN">Kashmiri</option>
-                            <option value="doi-IN">Dogri</option>
-                            <option value="as-IN">Assamese</option>
-                            <option value="kn-IN">Kannada</option>
-                            <option value="te-IN">Telugu</option>
-                            <option value="gu-IN">Gujarati</option>
-                            <option value="ur-IN">Urdu</option>
+                            <option value="hi-IN">हिन्दी</option>
+                            <option value="pa-IN">ਪੰਜਾਬੀ</option>
+                            <option value="ta-IN">தமிழ்</option>
+                            <option value="mr-IN">मराठी</option>
+                            <option value="bn-IN">বাংলা</option>
+                            <option value="ks-IN">कॉशुर</option>
+                            <option value="doi-IN">डोगरी</option>
+                            <option value="as-IN">অসমীয়া</option>
+                            <option value="kn-IN">ಕನ್ನಡ</option>
+                            <option value="te-IN">తెలుగు</option>
+                            <option value="gu-IN">ગુજરાતી</option>
+                            <option value="ur-IN">اردو</option>
                         </select>
                         <button
                             className="mt-4 w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
