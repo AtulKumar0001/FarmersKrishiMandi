@@ -21,7 +21,7 @@ const layout = async ({ children }: Props) => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <Sidebar farmerId = {user.id} buyerId={null} />
+      <Sidebar farmerId={null} buyerId = {user.id}  />
       <div className="md:pl-[300px]">
         <InfoBar/>
         <div className="relative">
