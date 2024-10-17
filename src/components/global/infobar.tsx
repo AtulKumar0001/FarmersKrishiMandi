@@ -36,7 +36,7 @@ const InfoBar = () => {
       <div className="flex items-center gap-4">
         <Sheet>
           <SheetTrigger>
-            <div className="rounded-full w-9 h-9 bg-primary flex items-center justify-center text-white">
+            <div className="rounded-full w-9 h-9 bg-primary flex items-center justify-center text-white ">
               <Bell size={17} className="dark:text-black " />
             </div>
           </SheetTrigger>
@@ -45,20 +45,33 @@ const InfoBar = () => {
               <SheetTitle>Notifications</SheetTitle>
             </SheetHeader>
             {notifications.map((notification) => (
-              <div key={notification.id} className="flex gap-2 mb-4">
-                <Avatar>
+              <div key={notification.id} className="flex items-start gap-4 mb-6 p-4 rounded-lg bg-white dark:bg-gray-800 hover:bg-secondary/20 dark:hover:bg-gray-700 transition-colors">
+                <Avatar className="w-12 h-12 border-2 border-primary">
                   <AvatarImage src={notification.User.avatarUrl} alt="Profile Picture" />
-                  <AvatarFallback>{notification.User.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {notification.User.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
-                <div>
-                  <p>
-                    <span className="font-bold">{notification.notification.split("|")[0]}</span>
-                    <span className="text-muted-foreground">{notification.notification.split("|")[1]}</span>
-                    <span className="font-bold">{notification.notification.split("|")[2]}</span>
+                <div className="flex-1">
+                  <p className="mb-1 text-sm text-gray-800 dark:text-gray-200">
+                    <span className="font-semibold">{notification.notification.split("|")[0]}</span>
+                    <span> </span>
+                    <span className="text-gray-600 dark:text-gray-400">{notification.notification.split("|")[1]}</span>
+                    <span> </span>
+                    <span className="font-semibold">{notification.notification.split("|")[2]}</span>
                   </p>
-                  <small className="text-xs text-muted-foreground">
-                    {new Date(notification.createdAt).toLocaleDateString()}
-                  </small>
+                  <div className="flex items-center justify-between">
+                    <small className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(notification.createdAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </small>
+                    <button className="text-xs text-primary hover:underline">Mark as read</button>
+                  </div>
                 </div>
               </div>
             ))}
