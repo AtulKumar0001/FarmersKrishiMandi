@@ -1,61 +1,81 @@
-'use client'
-import React, { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
+"use client";
+import React, { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // List of common crops in India
 const cropOptions = [
-  'Rice', 'Wheat', 'Maize', 'Millets', 'Pulses', 'Cotton', 'Sugarcane', 'Oilseeds',
-  'Fruits', 'Vegetables', 'Tea', 'Coffee', 'Jute', 'Rubber', 'Spices', 'Other'
-]
+  "Rice",
+  "Wheat",
+  "Maize",
+  "Millets",
+  "Pulses",
+  "Cotton",
+  "Sugarcane",
+  "Oilseeds",
+  "Fruits",
+  "Vegetables",
+  "Tea",
+  "Coffee",
+  "Jute",
+  "Rubber",
+  "Spices",
+  "Other",
+];
 
 interface FarmerRegistrationProps {
   userId: string;
 }
 
-export default function FarmerRegistration({ userId }: FarmerRegistrationProps) {
-  const router = useRouter()
+export default function FarmerRegistration({
+  userId,
+}: FarmerRegistrationProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
-    aadharNumber: '',
-    address: '',
-    state: '',
-    pincode: '',
+    name: "",
+    aadharNumber: "",
+    address: "",
+    state: "",
+    pincode: "",
     crops: [] as string[],
-    otherCrop: ''
-  })
-  const [error, setError] = useState<string | null>(null)
+    otherCrop: "",
+  });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prevState => ({ ...prevState, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const handleCropChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const crop = e.target.value
-    setFormData(prevState => ({
+    const crop = e.target.value;
+    setFormData((prevState) => ({
       ...prevState,
       crops: e.target.checked
         ? [...prevState.crops, crop]
-        : prevState.crops.filter(c => c !== crop)
-    }))
-  }
+        : prevState.crops.filter((c) => c !== crop),
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     try {
       // Filter out "Other" from crops array
-      const filteredCrops = formData.crops.filter(crop => crop !== 'Other')
+      const filteredCrops = formData.crops.filter((crop) => crop !== "Other");
 
       const { data, error } = await supabase
-        .from('farmer_registrations')
+        .from("farmer_registrations")
         .insert({
           user_id: userId,
           name: formData.name,
@@ -64,24 +84,29 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
           state: formData.state,
           pincode: formData.pincode,
           crops: filteredCrops,
-          other_crop: formData.otherCrop || null
-        })
+          other_crop: formData.otherCrop || null,
+          role: "farmer",
+        });
 
-      if (error) throw error
+      if (error) throw error;
 
-      console.log('Registration successful:', data)
-      router.push(`/farmer/${userId}`) // Redirect to main page after successful registration
+      console.log("Registration successful:", data);
+      router.push(`/farmer/${userId}`); // Redirect to main page after successful registration
     } catch (error) {
-      console.error('Error submitting form:', error)
-      setError('An error occurred while submitting the form. Please try again.')
+      console.error("Error submitting form:", error);
+      setError(
+        "An error occurred while submitting the form. Please try again."
+      );
     }
-  }
+  };
 
   return (
-<div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Farmer Registration</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Farmer Registration
+          </h2>
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
@@ -90,7 +115,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Full Name
                 </label>
                 <input
@@ -105,7 +133,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
               </div>
 
               <div>
-                <label htmlFor="aadharNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="aadharNumber"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Aadhar Card Number
                 </label>
                 <input
@@ -122,7 +153,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
               </div>
 
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Address
                 </label>
                 <textarea
@@ -137,7 +171,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
               </div>
 
               <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   State
                 </label>
                 <input
@@ -152,7 +189,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
               </div>
 
               <div>
-                <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="pincode"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Pincode
                 </label>
                 <input
@@ -184,7 +224,10 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
                         onChange={handleCropChange}
                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={crop} className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                      <label
+                        htmlFor={crop}
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
                         {crop}
                       </label>
                     </div>
@@ -192,9 +235,12 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
                 </div>
               </div>
 
-              {formData.crops.includes('Other') && (
+              {formData.crops.includes("Other") && (
                 <div>
-                  <label htmlFor="otherCrop" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="otherCrop"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Other Crop
                   </label>
                   <input
@@ -221,5 +267,5 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
         </div>
       </div>
     </div>
-  )
+  );
 }

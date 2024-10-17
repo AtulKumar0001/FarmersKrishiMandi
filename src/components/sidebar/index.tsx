@@ -28,12 +28,14 @@ const Sidebar = ({farmerId,buyerId}:Props) => {
     return <MenuOptions
       defaultOpen={true}
       sidebarLogo="/logo.png"  
+      userRole='Farmer'
       sidebarOpt={sidebarOptionFarmer}
     />
   }else{
     return <MenuOptions
       defaultOpen={true}
       sidebarLogo="/logo.png"  
+      userRole='Buyer'
       sidebarOpt={sidebarOptionBuyer}
     />
   }

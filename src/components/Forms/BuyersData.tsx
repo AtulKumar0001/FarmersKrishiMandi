@@ -1,12 +1,12 @@
-'use client'
-import React, { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
+"use client";
+import React, { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // List of common crops in India
 interface FarmerRegistrationProps {
@@ -14,28 +14,32 @@ interface FarmerRegistrationProps {
 }
 
 export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
-    aadharNumber: '',
-    address: '',
-    state: '',
-    pincode: '',
-  })
-  const [error, setError] = useState<string | null>(null)
+    name: "",
+    aadharNumber: "",
+    address: "",
+    state: "",
+    pincode: "",
+  });
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prevState => ({ ...prevState, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     try {
       const { data, error } = await supabase
-        .from('buyer_registrations')
+        .from("buyer_registrations")
         .insert({
           user_id: userId,
           name: formData.name,
@@ -43,23 +47,28 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
           address: formData.address,
           state: formData.state,
           pincode: formData.pincode,
-        })
+          role: "buyer",
+        });
 
-      if (error) throw error
+      if (error) throw error;
 
-      console.log('Registration successful:', data)
-      router.push(`/buyer/${userId}`) // Redirect to main page after successful registration
+      console.log("Registration successful:", data);
+      router.push(`/buyer/${userId}`); // Redirect to main page after successful registration
     } catch (error) {
-      console.error('Error submitting form:', error)
-      setError('An error occurred while submitting the form. Please try again.')
+      console.error("Error submitting form:", error);
+      setError(
+        "An error occurred while submitting the form. Please try again."
+      );
     }
-  }
+  };
 
   return (
-<div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Buyer Registration</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Buyer Registration
+          </h2>
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
@@ -68,7 +77,10 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Full Name
                 </label>
                 <input
@@ -83,7 +95,10 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
               </div>
 
               <div>
-                <label htmlFor="aadharNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="aadharNumber"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Aadhar Card Number
                 </label>
                 <input
@@ -100,7 +115,10 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
               </div>
 
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Address
                 </label>
                 <textarea
@@ -115,7 +133,10 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
               </div>
 
               <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   State
                 </label>
                 <input
@@ -130,7 +151,10 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
               </div>
 
               <div>
-                <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="pincode"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Pincode
                 </label>
                 <input
@@ -159,5 +183,5 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
