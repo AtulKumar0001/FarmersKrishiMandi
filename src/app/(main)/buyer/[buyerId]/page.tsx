@@ -22,7 +22,7 @@ export default function Home() {
   const videoId = getYouTubeId(videoUrl);
 
   return (
-    <div className="max-w-6xl mx-auto p-8 font-sans bg-gradient-to-br from-blue-400 to-blue-600 min-h-screen">
+    <div className="max-w-6xl mx-auto p-8 font-sans bg-gradient-to-br from-green-400 to-green-600 min-h-screen">
       <h1 className="text-3xl font-bold text-white mb-6">Welcome to Farmers Portal</h1>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6">
