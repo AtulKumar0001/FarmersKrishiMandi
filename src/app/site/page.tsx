@@ -1,6 +1,8 @@
-"use client"; 
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from 'next/navigation';
 import {
   FaLeaf,
   FaHandshake,
@@ -8,7 +10,41 @@ import {
   FaMicrophone,
   FaCloudSun,
 } from "react-icons/fa";
-import Link from "next/link";
+
+type Feature = {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+};
+
+type Testimonial = {
+  name: string;
+  role: string;
+  quote: string;
+};
+
+type Translations = {
+  heroTitle: string;
+  getStarted: string;
+  ourFeatures: string;
+  learnMore: string;
+  howItWorks: string;
+  infographicPlaceholder: string;
+  smartFarmingFeatures: string;
+  aiVoiceAssistance: string;
+  aiVoiceDescription: string;
+  weatherAlerts: string;
+  weatherAlertsDescription: string;
+  whatOurUsersSay: string;
+  stayUpdated: string;
+  emailPlaceholder: string;
+  subscribe: string;
+  privacyPolicy: string;
+  termsOfService: string;
+  socialMediaIcons: string;
+  features: Feature[];
+  testimonials: Testimonial[];
+};
 
 const features = [
   {
@@ -42,8 +78,104 @@ const testimonials = [
 ];
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const [language, setLanguage] = useState(searchParams.get('lang') || "en");
+  const [translations, setTranslations] = useState<Translations>({} as Translations);
+
+  useEffect(() => {
+    const newLang = searchParams.get('lang');
+    if (newLang) {
+      setLanguage(newLang);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const translateContent = async () => {
+      if (language === 'en') {
+        setTranslations({
+          heroTitle: "Empowering Farmers with Fair Contracts and Secure Payments",
+          getStarted: "Get Started",
+          ourFeatures: "Our Features",
+          learnMore: "Learn More",
+          howItWorks: "How It Works",
+          infographicPlaceholder: "Insert your infographic or flowchart here",
+          smartFarmingFeatures: "Smart Farming Features",
+          aiVoiceAssistance: "AI Voice Assistance",
+          aiVoiceDescription: "Get help with voice commands",
+          weatherAlerts: "Weather Alerts",
+          weatherAlertsDescription: "Stay informed about weather conditions",
+          whatOurUsersSay: "What Our Users Say",
+          stayUpdated: "Stay Updated",
+          emailPlaceholder: "Enter your email",
+          subscribe: "Subscribe",
+          privacyPolicy: "Privacy Policy",
+          termsOfService: "Terms of Service",
+          socialMediaIcons: "Social Media Icons",
+          features: features,
+          testimonials: testimonials,
+        });
+        return;
+      }
+
+      const contentToTranslate = {
+        heroTitle: "Empowering Farmers with Fair Contracts and Secure Payments",
+        getStarted: "Get Started",
+        ourFeatures: "Our Features",
+        learnMore: "Learn More",
+        howItWorks: "How It Works",
+        infographicPlaceholder: "Insert your infographic or flowchart here",
+        smartFarmingFeatures: "Smart Farming Features",
+        aiVoiceAssistance: "AI Voice Assistance",
+        aiVoiceDescription: "Get help with voice commands",
+        weatherAlerts: "Weather Alerts",
+        weatherAlertsDescription: "Stay informed about weather conditions",
+        whatOurUsersSay: "What Our Users Say",
+        stayUpdated: "Stay Updated",
+        emailPlaceholder: "Enter your email",
+        subscribe: "Subscribe",
+        privacyPolicy: "Privacy Policy",
+        termsOfService: "Terms of Service",
+        socialMediaIcons: "Social Media Icons",
+        features: features.map(f => ({ title: f.title, description: f.description })),
+        testimonials: testimonials.map(t => ({ name: t.name, role: t.role, quote: t.quote })),
+      };
+
+      try {
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ texts: contentToTranslate, targetLanguage: language }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Translation request failed');
+        }
+
+        const translatedContent = await response.json();
+        setTranslations({
+          ...translatedContent,
+          features: features.map((f, i) => ({
+            ...f,
+            title: translatedContent.features[i].title,
+            description: translatedContent.features[i].description,
+          })),
+          testimonials: translatedContent.testimonials,
+        });
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslations(contentToTranslate);
+      }
+    };
+
+    translateContent();
+  }, [language]);
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 overflow-x-hidden">
+      {/* Remove the language selector from here */}
+      
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center text-white">
         <Image 
@@ -55,11 +187,11 @@ export default function Home() {
         />
         <div className="z-10 text-center px-4">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-            Empowering Farmers with Fair Contracts and Secure Payments
+            {translations.heroTitle}
           </h1>
           <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 sm:mt-0">
             <Link href="/login">
-              <span>Get Started</span>
+              <span>{translations.getStarted}</span>
             </Link>
           </button>
         </div>
@@ -68,21 +200,24 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Our Features</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{translations.ourFeatures}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center"
-              >
-                <feature.icon className="text-4xl text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="mb-4">{feature.description}</p>
-                <button className="text-green-500 hover:text-green-600 font-semibold">
-                  Learn More
-                </button>
-              </div>
-            ))}
+            {translations.features && translations.features.map((feature: Feature, index: number) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md text-center"
+                >
+                  <Icon className="text-4xl text-green-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                  <p className="mb-4">{feature.description}</p>
+                  <button className="text-green-500 hover:text-green-600 font-semibold">
+                    {translations.learnMore}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -90,11 +225,11 @@ export default function Home() {
       {/* How It Works Section */}
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">How It Works</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{translations.howItWorks}</h2>
           {/* Add your infographic or flowchart here */}
           <div className="bg-gray-200 dark:bg-gray-700 p-6 sm:p-8 rounded-lg">
             <p className="text-center">
-              Insert your infographic or flowchart here
+              {translations.infographicPlaceholder}
             </p>
           </div>
         </div>
@@ -104,20 +239,20 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-            Smart Farming Features
+            {translations.smartFarmingFeatures}
           </h2>
           <div className="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0 md:space-x-12">
             <div className="text-center">
               <FaMicrophone className="text-5xl text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">
-                AI Voice Assistance
+                {translations.aiVoiceAssistance}
               </h3>
-              <p>Get help with voice commands</p>
+              <p>{translations.aiVoiceDescription}</p>
             </div>
             <div className="text-center">
               <FaCloudSun className="text-5xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Weather Alerts</h3>
-              <p>Stay informed about weather conditions</p>
+              <h3 className="text-xl font-semibold mb-2">{translations.weatherAlerts}</h3>
+              <p>{translations.weatherAlertsDescription}</p>
             </div>
           </div>
         </div>
@@ -127,10 +262,10 @@ export default function Home() {
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-            What Our Users Say
+            {translations.whatOurUsersSay}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {testimonials.map((testimonial, index) => (
+            {translations.testimonials && translations.testimonials.map((testimonial: Testimonial, index: number) => (
               <div
                 key={index}
                 className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md"
@@ -151,29 +286,29 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="w-full md:w-1/3 mb-6 md:mb-0">
-              <h3 className="text-xl font-bold mb-2">Stay Updated</h3>
+              <h3 className="text-xl font-bold mb-2">{translations.stayUpdated}</h3>
               <form className="flex">
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={translations.emailPlaceholder}
                   className="p-2 rounded-l-md flex-grow text-gray-800 dark:text-gray-200 dark:bg-gray-700"
                 />
                 <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-r-md">
-                  Subscribe
+                  {translations.subscribe}
                 </button>
               </form>
             </div>
             <div className="w-full md:w-1/3 mb-6 md:mb-0 text-center">
               <a href="#" className="text-gray-300 hover:text-white mx-2">
-                Privacy Policy
+                {translations.privacyPolicy}
               </a>
               <a href="#" className="text-gray-300 hover:text-white mx-2">
-                Terms of Service
+                {translations.termsOfService}
               </a>
             </div>
             <div className="w-full md:w-1/3 text-right">
               {/* Add your social media icons here */}
-              <p>Social Media Icons</p>
+              <p>{translations.socialMediaIcons}</p>
             </div>
           </div>
         </div>
