@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
@@ -61,7 +61,7 @@ export default function Home() {
   const [translations, setTranslations] = useState<Translations>({} as Translations);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  const contentToTranslate: Translations = {
+  const contentToTranslate = useMemo<Translations>(() => ({
     heroTitle: "Empowering Farmers with Fair Contracts and Secure Payments",
     getStarted: "Get Started",
     ourFeatures: "Our Features",
@@ -109,7 +109,7 @@ export default function Home() {
         quote: "I've found reliable suppliers thanks to this service.",
       },
     ],
-  };
+  }), []);
 
   useEffect(() => {
     const newLang = searchParams.get('lang');
@@ -173,11 +173,11 @@ export default function Home() {
         />
         <div className="z-10 text-center px-4">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-            {getContent('heroTitle')}
+            {getContent('heroTitle') as string}
           </h1>
           <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 sm:mt-0">
             <Link href="/login">
-              <span>{getContent('getStarted')}</span>
+              <span>{getContent('getStarted') as string}</span>
             </Link>
           </button>
         </div>
@@ -186,9 +186,9 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('ourFeatures')}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('ourFeatures') as string}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {getContent('features').map((feature: Feature, index: number) => {
+            {(getContent('features') as Feature[]).map((feature: Feature, index: number) => {
               const Icon = Icons[feature.icon];
               return (
                 <div
@@ -199,7 +199,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="mb-4">{feature.description}</p>
                   <button className="text-green-500 hover:text-green-600 font-semibold">
-                    {getContent('learnMore')}
+                    {getContent('learnMore') as string}
                   </button>
                 </div>
               );
@@ -208,8 +208,95 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ... (rest of the sections remain the same) ... */}
+      {/* How It Works Section */}
+      <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('howItWorks') as string}</h2>
+          <div className="bg-gray-200 dark:bg-gray-700 p-6 sm:p-8 rounded-lg">
+            <p className="text-center">
+              {getContent('infographicPlaceholder') as string}
+            </p>
+          </div>
+        </div>
+      </section>
 
+      {/* AI Assistance & Weather Alerts Section */}
+      <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+            {getContent('smartFarmingFeatures') as string}
+          </h2>
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0 md:space-x-12">
+            <div className="text-center">
+              <FaMicrophone className="text-5xl text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">
+                {getContent('aiVoiceAssistance') as string}
+              </h3>
+              <p>{getContent('aiVoiceDescription') as string}</p>
+            </div>
+            <div className="text-center">
+              <FaCloudSun className="text-5xl text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">{getContent('weatherAlerts') as string}</h3>
+              <p>{getContent('weatherAlertsDescription') as string}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-12 sm:py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+            {getContent('whatOurUsersSay') as string}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {(getContent('testimonials') as Testimonial[]).map((testimonial: Testimonial, index: number) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md"
+              >
+                <p className="italic mb-4">&ldquo;{testimonial.quote}&rdquo;</p>
+                <p className="font-semibold">{testimonial.name}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {testimonial.role}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 dark:bg-gray-950 text-white py-6 sm:py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="w-full md:w-1/3 mb-6 md:mb-0">
+              <h3 className="text-xl font-bold mb-2">{getContent('stayUpdated') as string}</h3>
+              <form className="flex">
+                <input
+                  type="email"
+                  placeholder={getContent('emailPlaceholder') as string}
+                  className="p-2 rounded-l-md flex-grow text-gray-800 dark:text-gray-200 dark:bg-gray-700"
+                />
+                <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-r-md">
+                  {getContent('subscribe') as string}
+                </button>
+              </form>
+            </div>
+            <div className="w-full md:w-1/3 mb-6 md:mb-0 text-center">
+              <a href="#" className="text-gray-300 hover:text-white mx-2">
+                {getContent('privacyPolicy') as string}
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white mx-2">
+                {getContent('termsOfService') as string}
+              </a>
+            </div>
+            <div className="w-full md:w-1/3 text-right">
+              <p>{getContent('socialMediaIcons') as string}</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -74,15 +74,17 @@ export default function SiteHeader() {
             onChange={handleLanguageChange}
             className="h-9 rounded-md border border-input bg-white dark:bg-background text-black dark:text-white px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:bg-gray-100 dark:focus:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
           >
-            <option value="en" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
-              English
-            </option>
-            <option value="hi" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
-              हिंदी
-            </option>
-            <option value="pa" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">
-              ਪੰਜਾਬੀ
-            </option>
+            <option value="en" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">English</option>
+            <option value="hi" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">हिंदी</option>
+            <option value="bn" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">বাংলা</option>
+            <option value="te" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">తెలుగు</option>
+            <option value="mr" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">मराठी</option>
+            <option value="ta" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">தமிழ்</option>
+            <option value="gu" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ગુજરાતી</option>
+            <option value="kn" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ಕನ್ನಡ</option>
+            <option value="ml" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">മലയാളം</option>
+            <option value="pa" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ਪੰਜਾਬੀ</option>
+            <option value="ur" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">اردو</option>
           </select>
           <form
             action={() => {
