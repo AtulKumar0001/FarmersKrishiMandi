@@ -1,14 +1,86 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import YouTube from "react-youtube";
+import { useSearchParams } from 'next/navigation';
+
+type Translations = {
+  welcomeTitle: string;
+  gettingStartedTitle: string;
+  watchVideoText: string;
+  quickGuideTitle: string;
+  quickGuideItems: string[];
+};
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
+  const searchParams = useSearchParams();
+  const [language, setLanguage] = useState(searchParams.get('lang') || "en");
+  const [translations, setTranslations] = useState<Translations>({} as Translations);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const contentToTranslate = useMemo<Translations>(() => ({
+    welcomeTitle: "Welcome to Farmers Portal",
+    gettingStartedTitle: "Getting Started Tutorial",
+    watchVideoText: "Watch this short video to learn how to use our website effectively.",
+    quickGuideTitle: "Quick Guide:",
+    quickGuideItems: [
+      "Navigate through the menu on the left",
+      "Check weather forecasts and crop recommendations",
+      "Review contracts and learn how to fill your details",
+      "Discover how to get help when needed"
+    ],
+  }), []);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const newLang = searchParams.get('lang');
+    if (newLang && newLang !== language) {
+      setLanguage(newLang);
+    }
+    setIsTranslating(true);
+  }, [searchParams, language]);
+
+  useEffect(() => {
+    const translateContent = async () => {
+      if (language === 'en') {
+        setTranslations(contentToTranslate);
+        setIsTranslating(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ texts: contentToTranslate, targetLanguage: language }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Translation request failed');
+        }
+
+        const translatedContent: Translations = await response.json();
+        setTranslations(translatedContent);
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslations(contentToTranslate);
+      } finally {
+        setIsTranslating(false);
+      }
+    };
+
+    translateContent();
+  }, [language, contentToTranslate]);
+
+  const getContent = (key: keyof Translations): string | string[] => {
+    if (isTranslating || !translations[key]) {
+      return contentToTranslate[key];
+    }
+    return translations[key];
+  };
 
   // Function to extract YouTube video ID from URL
   const getYouTubeId = (url: string) => {
@@ -23,14 +95,14 @@ export default function Home() {
 
   return (
     <div className="max-w-6xl mx-auto p-8 font-sans bg-gradient-to-br from-green-600 to-green-800 min-h-screen">
-      <h1 className="text-3xl font-bold text-white mb-6">Welcome to Farmers Portal</h1>
+      <h1 className="text-3xl font-bold text-white mb-6">{getContent('welcomeTitle') as string}</h1>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Getting Started Tutorial
+            {getContent('gettingStartedTitle') as string}
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            Watch this short video to learn how to use our website effectively.
+            {getContent('watchVideoText') as string}
           </p>
         </div>
         {isClient && videoId && (
@@ -52,25 +124,15 @@ export default function Home() {
         )}
         <div className="bg-gray-50 p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            Quick Guide:
+            {getContent('quickGuideTitle') as string}
           </h3>
           <ol className="list-decimal list-inside space-y-3 text-gray-700">
-            <li className="flex items-start">
-              <span className="mr-2">1.</span>
-              <span>Navigate through the menu on the left</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">2.</span>
-              <span>Check weather forecasts and crop recommendations</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">3.</span>
-              <span>Review contracts and learn how to fill your details</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">4.</span>
-              <span>Discover how to get help when needed</span>
-            </li>
+            {(getContent('quickGuideItems') as string[]).map((item, index) => (
+              <li key={index} className="flex items-start">
+                <span className="mr-2">{index + 1}.</span>
+                <span>{item}</span>
+              </li>
+            ))}
           </ol>
         </div>
       </div>
