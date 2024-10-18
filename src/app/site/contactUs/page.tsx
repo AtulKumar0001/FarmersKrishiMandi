@@ -28,6 +28,7 @@ export default function Contact() {
   const searchParams = useSearchParams();
   const [language, setLanguage] = useState(searchParams.get('lang') || "en");
   const [translations, setTranslations] = useState<Translations>({} as Translations);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -35,55 +36,41 @@ export default function Contact() {
     message: '',
   })
 
+  const contentToTranslate: Translations = {
+    contactUs: "Contact Us",
+    contactUsDescription: "We are here to help. Reach out to us with any questions or concerns.",
+    email: "Email",
+    phone: "Phone",
+    address: "Address",
+    sendUsMessage: "Send Us a Message",
+    name: "Name",
+    message: "Message",
+    sendMessage: "Send Message",
+    faq: "Frequently Asked Questions",
+    faq1Title: "How do I create an account?",
+    faq1Content: "To create an account, click on the \"Sign Up\" button in the top right corner of our homepage. Follow the prompts to enter your information and set up your profile.",
+    faq2Title: "What types of crops can I sell on your platform?",
+    faq2Content: "Our platform supports a wide variety of crops. You can sell grains, fruits, vegetables, and more. Check our crop categories for a full list of supported produce.",
+    faq3Title: "How do you ensure fair pricing for farmers?",
+    faq3Content: "We use a transparent pricing model that takes into account market rates, quality of produce, and transportation costs. Our AI-powered system helps suggest competitive prices to ensure fairness for both farmers and buyers.",
+  };
+
   useEffect(() => {
     const newLang = searchParams.get('lang');
-    if (newLang) {
+    if (newLang && newLang !== language) {
       setLanguage(newLang);
     }
-  }, [searchParams]);
+    // Always set isTranslating to true when component mounts or language changes
+    setIsTranslating(true);
+  }, [searchParams, language]);
 
   useEffect(() => {
     const translateContent = async () => {
       if (language === 'en') {
-        setTranslations({
-          contactUs: "Contact Us",
-          contactUsDescription: "We are here to help. Reach out to us with any questions or concerns.",
-          email: "Email",
-          phone: "Phone",
-          address: "Address",
-          sendUsMessage: "Send Us a Message",
-          name: "Name",
-          message: "Message",
-          sendMessage: "Send Message",
-          faq: "Frequently Asked Questions",
-          faq1Title: "How do I create an account?",
-          faq1Content: "To create an account, click on the \"Sign Up\" button in the top right corner of our homepage. Follow the prompts to enter your information and set up your profile.",
-          faq2Title: "What types of crops can I sell on your platform?",
-          faq2Content: "Our platform supports a wide variety of crops. You can sell grains, fruits, vegetables, and more. Check our crop categories for a full list of supported produce.",
-          faq3Title: "How do you ensure fair pricing for farmers?",
-          faq3Content: "We use a transparent pricing model that takes into account market rates, quality of produce, and transportation costs. Our AI-powered system helps suggest competitive prices to ensure fairness for both farmers and buyers.",
-        });
+        setTranslations(contentToTranslate);
+        setIsTranslating(false);
         return;
       }
-
-      const contentToTranslate: Translations = {
-        contactUs: "Contact Us",
-        contactUsDescription: "We are here to help. Reach out to us with any questions or concerns.",
-        email: "Email",
-        phone: "Phone",
-        address: "Address",
-        sendUsMessage: "Send Us a Message",
-        name: "Name",
-        message: "Message",
-        sendMessage: "Send Message",
-        faq: "Frequently Asked Questions",
-        faq1Title: "How do I create an account?",
-        faq1Content: "To create an account, click on the \"Sign Up\" button in the top right corner of our homepage. Follow the prompts to enter your information and set up your profile.",
-        faq2Title: "What types of crops can I sell on your platform?",
-        faq2Content: "Our platform supports a wide variety of crops. You can sell grains, fruits, vegetables, and more. Check our crop categories for a full list of supported produce.",
-        faq3Title: "How do you ensure fair pricing for farmers?",
-        faq3Content: "We use a transparent pricing model that takes into account market rates, quality of produce, and transportation costs. Our AI-powered system helps suggest competitive prices to ensure fairness for both farmers and buyers.",
-      };
 
       try {
         const response = await fetch('/api/translate', {
@@ -103,11 +90,14 @@ export default function Contact() {
       } catch (error) {
         console.error('Translation error:', error);
         setTranslations(contentToTranslate);
+      } finally {
+        setIsTranslating(false);
       }
     };
 
+    // Always call translateContent when this effect runs
     translateContent();
-  }, [language]);
+  }, [language]); // Remove isTranslating from dependencies
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -120,13 +110,20 @@ export default function Contact() {
     setFormData({ name: '', email: '', message: '' })
   }
 
+  const getContent = (key: keyof Translations) => {
+    if (isTranslating || !translations[key]) {
+      return contentToTranslate[key];
+    }
+    return translations[key];
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       {/* Hero Section */}
       <section className="bg-green-500 dark:bg-green-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">{translations.contactUs}</h1>
-          <p className="text-xl">{translations.contactUsDescription}</p>
+          <h1 className="text-4xl font-bold mb-4">{getContent('contactUs')}</h1>
+          <p className="text-xl">{getContent('contactUsDescription')}</p>
         </div>
       </section>
 
@@ -136,17 +133,17 @@ export default function Contact() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <FaEnvelope className="text-4xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{translations.email}</h3>
+              <h3 className="text-xl font-semibold mb-2">{getContent('email')}</h3>
               <p>support@farmerconnect.com</p>
             </div>
             <div className="text-center">
               <FaPhone className="text-4xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{translations.phone}</h3>
+              <h3 className="text-xl font-semibold mb-2">{getContent('phone')}</h3>
               <p>+1 (123) 456-7890</p>
             </div>
             <div className="text-center">
               <FaMapMarkerAlt className="text-4xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{translations.address}</h3>
+              <h3 className="text-xl font-semibold mb-2">{getContent('address')}</h3>
               <p>123 Farm Street, Agriville, AG 12345</p>
             </div>
           </div>
@@ -156,10 +153,10 @@ export default function Contact() {
       {/* Contact Form */}
       <section className="py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">{translations.sendUsMessage}</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{getContent('sendUsMessage')}</h2>
           <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
             <div className="mb-4">
-              <label htmlFor="name" className="block mb-2 font-semibold">{translations.name}</label>
+              <label htmlFor="name" className="block mb-2 font-semibold">{getContent('name')}</label>
               <input
                 type="text"
                 id="name"
@@ -171,7 +168,7 @@ export default function Contact() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="email" className="block mb-2 font-semibold">{translations.email}</label>
+              <label htmlFor="email" className="block mb-2 font-semibold">{getContent('email')}</label>
               <input
                 type="email"
                 id="email"
@@ -183,7 +180,7 @@ export default function Contact() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="message" className="block mb-2 font-semibold">{translations.message}</label>
+              <label htmlFor="message" className="block mb-2 font-semibold">{getContent('message')}</label>
               <textarea
                 id="message"
                 name="message"
@@ -195,7 +192,7 @@ export default function Contact() {
               ></textarea>
             </div>
             <button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-              {translations.sendMessage}
+              {getContent('sendMessage')}
             </button>
           </form>
         </div>
@@ -204,19 +201,19 @@ export default function Contact() {
       {/* FAQ Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">{translations.faq}</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{getContent('faq')}</h2>
           <div className="max-w-3xl mx-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2">{translations.faq1Title}</h3>
-              <p>{translations.faq1Content}</p>
+              <h3 className="text-xl font-semibold mb-2">{getContent('faq1Title')}</h3>
+              <p>{getContent('faq1Content')}</p>
             </div>
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2">{translations.faq2Title}</h3>
-              <p>{translations.faq2Content}</p>
+              <h3 className="text-xl font-semibold mb-2">{getContent('faq2Title')}</h3>
+              <p>{getContent('faq2Content')}</p>
             </div>
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2">{translations.faq3Title}</h3>
-              <p>{translations.faq3Content}</p>
+              <h3 className="text-xl font-semibold mb-2">{getContent('faq3Title')}</h3>
+              <p>{getContent('faq3Content')}</p>
             </div>
           </div>
         </div>
