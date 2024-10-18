@@ -153,7 +153,7 @@ export default function Home() {
     translateContent();
   }, [language]);
 
-  const getContent = (key: keyof Translations): any => {
+  const getContent = (key: keyof Translations): string | Feature[] | Testimonial[] => {
     if (isTranslating || !translations[key]) {
       return contentToTranslate[key];
     }
@@ -173,11 +173,11 @@ export default function Home() {
         />
         <div className="z-10 text-center px-4">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-            {getContent('heroTitle')}
+            {getContent('heroTitle') as string}
           </h1>
           <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4 sm:mt-0">
             <Link href="/login">
-              <span>{getContent('getStarted')}</span>
+              <span>{getContent('getStarted') as string}</span>
             </Link>
           </button>
         </div>
@@ -186,9 +186,9 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('ourFeatures')}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('ourFeatures') as string}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {getContent('features').map((feature: Feature, index: number) => {
+            {(getContent('features') as Feature[]).map((feature: Feature, index: number) => {
               const Icon = Icons[feature.icon];
               return (
                 <div
@@ -199,7 +199,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="mb-4">{feature.description}</p>
                   <button className="text-green-500 hover:text-green-600 font-semibold">
-                    {getContent('learnMore')}
+                    {getContent('learnMore') as string}
                   </button>
                 </div>
               );
@@ -211,10 +211,10 @@ export default function Home() {
       {/* How It Works Section */}
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('howItWorks')}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">{getContent('howItWorks') as string}</h2>
           <div className="bg-gray-200 dark:bg-gray-700 p-6 sm:p-8 rounded-lg">
             <p className="text-center">
-              {getContent('infographicPlaceholder')}
+              {getContent('infographicPlaceholder') as string}
             </p>
           </div>
         </div>
@@ -224,20 +224,20 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-gray-100 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-            {getContent('smartFarmingFeatures')}
+            {getContent('smartFarmingFeatures') as string}
           </h2>
           <div className="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0 md:space-x-12">
             <div className="text-center">
               <FaMicrophone className="text-5xl text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">
-                {getContent('aiVoiceAssistance')}
+                {getContent('aiVoiceAssistance') as string}
               </h3>
-              <p>{getContent('aiVoiceDescription')}</p>
+              <p>{getContent('aiVoiceDescription') as string}</p>
             </div>
             <div className="text-center">
               <FaCloudSun className="text-5xl text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{getContent('weatherAlerts')}</h3>
-              <p>{getContent('weatherAlertsDescription')}</p>
+              <h3 className="text-xl font-semibold mb-2">{getContent('weatherAlerts') as string}</h3>
+              <p>{getContent('weatherAlertsDescription') as string}</p>
             </div>
           </div>
         </div>
@@ -247,10 +247,10 @@ export default function Home() {
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-            {getContent('whatOurUsersSay')}
+            {getContent('whatOurUsersSay') as string}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {getContent('testimonials').map((testimonial: Testimonial, index: number) => (
+            {(getContent('testimonials') as Testimonial[]).map((testimonial: Testimonial, index: number) => (
               <div
                 key={index}
                 className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md"
@@ -271,28 +271,28 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="w-full md:w-1/3 mb-6 md:mb-0">
-              <h3 className="text-xl font-bold mb-2">{getContent('stayUpdated')}</h3>
+              <h3 className="text-xl font-bold mb-2">{getContent('stayUpdated') as string}</h3>
               <form className="flex">
                 <input
                   type="email"
-                  placeholder={getContent('emailPlaceholder')}
+                  placeholder={getContent('emailPlaceholder') as string}
                   className="p-2 rounded-l-md flex-grow text-gray-800 dark:text-gray-200 dark:bg-gray-700"
                 />
                 <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-r-md">
-                  {getContent('subscribe')}
+                  {getContent('subscribe') as string}
                 </button>
               </form>
             </div>
             <div className="w-full md:w-1/3 mb-6 md:mb-0 text-center">
               <a href="#" className="text-gray-300 hover:text-white mx-2">
-                {getContent('privacyPolicy')}
+                {getContent('privacyPolicy') as string}
               </a>
               <a href="#" className="text-gray-300 hover:text-white mx-2">
-                {getContent('termsOfService')}
+                {getContent('termsOfService') as string}
               </a>
             </div>
             <div className="w-full md:w-1/3 text-right">
-              <p>{getContent('socialMediaIcons')}</p>
+              <p>{getContent('socialMediaIcons') as string}</p>
             </div>
           </div>
         </div>
