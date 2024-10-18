@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ModeToggle } from "../mode-toggle";
+import { useRouter, usePathname } from 'next/navigation';
 
 // Dummy notifications
 const dummyNotifications = [
@@ -29,11 +30,54 @@ const dummyNotifications = [
 
 const InfoBar = () => {
   const [notifications] = useState(dummyNotifications);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [currentLang, setCurrentLang] = useState('en');
+
+  useEffect(() => {
+    // Get the current language from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const lang = urlParams.get('lang');
+    if (lang) {
+      setCurrentLang(lang);
+    }
+  }, [pathname]);
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = e.target.value;
+    setCurrentLang(newLang);
+
+    // Construct the new URL with the updated language
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('lang', newLang);
+    const newUrl = `${pathname}?${urlParams.toString()}`;
+    
+    router.push(newUrl);
+  };
 
   return (
     <div className="fixed z-[20] top-0 left-[300px] right-0 p-4 bg-background/95 backdrop-blur-md dark:bg-gray-800 bg-white flex items-center justify-between">
       <div className="flex-grow"></div>
       <div className="flex items-center gap-4">
+        <select
+          id="locale"
+          name="locale"
+          value={currentLang}
+          onChange={handleLanguageChange}
+          className="h-9 rounded-md border border-input bg-white dark:bg-background text-black dark:text-white px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:bg-gray-100 dark:focus:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+        >
+          <option value="en" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">English</option>
+          <option value="hi" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">हिंदी</option>
+          <option value="bn" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">বাংলা</option>
+          <option value="te" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">తెలుగు</option>
+          <option value="mr" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">मराठी</option>
+          <option value="ta" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">தமிழ்</option>
+          <option value="gu" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ગુજરાતી</option>
+          <option value="kn" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ಕನ್ನಡ</option>
+          <option value="ml" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">മലയാളം</option>
+          <option value="pa" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ਪੰਜਾਬੀ</option>
+          <option value="ur" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">اردو</option>
+        </select>
         <Sheet>
           <SheetTrigger>
             <div className="rounded-full w-9 h-9 bg-primary flex items-center justify-center text-white ">
