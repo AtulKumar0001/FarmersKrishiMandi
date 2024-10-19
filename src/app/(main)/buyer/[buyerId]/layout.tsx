@@ -7,17 +7,32 @@ import InfoBar from '../../../../components/global/infobar'
 
 type Props = {
     children: React.ReactNode
+    params: { buyerId: string }
   }
 
-const layout = async ({ children }: Props) => {
+const layout = async ({ children, params }: Props) => {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if(!user){
-    return redirect('/')
+
+  if (!user) {
+    return redirect('/login')
   }
-  console.log(user.id)
+
+  // Check if the user exists in the buyers table and matches the buyerId
+  const { data: buyerData, error } = await supabase
+    .from('buyer_registrations')
+    .select('user_id')
+    .eq('user_id', params.buyerId)
+    .single()
+  console.log(buyerData)
+
+  if (error || !buyerData || user.id !== params.buyerId) {
+    // User is not authorized to access this buyer dashboard
+    return redirect('/unauthorized')
+  }
+
 
   return (
     <div className="h-screen overflow-hidden">
