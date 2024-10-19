@@ -90,7 +90,7 @@ export default function Home() {
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  const videoUrl = "https://youtu.be/NS9z2QHcZdY?si=l9OQY6xUBRX1VWAn";
+  const videoUrl = process.env.NEXT_PUBLIC_YOUTUBE_VIDEO_URL || '';
   const videoId = getYouTubeId(videoUrl);
 
   return (
