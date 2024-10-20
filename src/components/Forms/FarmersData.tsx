@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -10,31 +10,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // List of common crops in India
 const cropOptions = [
-  "Rice",
-  "Wheat",
-  "Maize",
-  "Millets",
-  "Pulses",
-  "Cotton",
-  "Sugarcane",
-  "Oilseeds",
-  "Fruits",
-  "Vegetables",
-  "Tea",
-  "Coffee",
-  "Jute",
-  "Rubber",
-  "Spices",
-  "Other",
+  "Rice", "Wheat", "Maize", "Millets", "Pulses", "Cotton", "Sugarcane",
+  "Oilseeds", "Fruits", "Vegetables", "Tea", "Coffee", "Jute", "Rubber",
+  "Spices", "Other"
 ];
 
 interface FarmerRegistrationProps {
   userId: string;
 }
 
-export default function FarmerRegistration({
-  userId,
-}: FarmerRegistrationProps) {
+export default function FarmerRegistration({ userId }: FarmerRegistrationProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -46,11 +31,12 @@ export default function FarmerRegistration({
     otherCrop: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -66,36 +52,109 @@ export default function FarmerRegistration({
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfilePicture(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
     try {
+      let profilePictureUrl = null;
+
+      // Upload profile picture if selected
+      if (profilePicture) {
+        const fileExt = profilePicture.name.split('.').pop();
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
+        
+        // Check if the bucket exists, if not create it
+        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+        if (bucketError) throw bucketError;
+
+        if (!buckets.find(bucket => bucket.name === 'dude')) {
+          console.log(89)
+        }
+        
+
+        const { error: uploadError } = await supabase.storage
+          .from('PFP')
+          .upload(fileName, profilePicture, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL of uploaded file
+        const { data: { publicUrl },  } = supabase.storage
+          .from('PFP')
+          .getPublicUrl(fileName);
+
+        
+
+        profilePictureUrl = publicUrl;
+        console.log(9)
+      }
+
       // Filter out "Other" from crops array
       const filteredCrops = formData.crops.filter((crop) => crop !== "Other");
 
-      const { data, error } = await supabase
+      // First, check if a registration already exists for this user
+      const { data: existingRegistration, error: fetchError } = await supabase
         .from("farmer_registrations")
-        .insert({
-          user_id: userId,
-          name: formData.name,
-          aadhar_number: formData.aadharNumber,
-          address: formData.address,
-          state: formData.state,
-          pincode: formData.pincode,
-          crops: filteredCrops,
-          other_crop: formData.otherCrop || null,
-          role: "farmer",
-        });
+        .select("id")
+        .eq("user_id", userId)
+        .single();
 
-      if (error) throw error;
+      if (fetchError && fetchError.code !== "PGRST116") {
+        // PGRST116 means no rows returned, which is fine in this case
+        throw fetchError;
+      }
 
-      console.log("Registration successful:", data);
+      let result;
+      if (existingRegistration) {
+        // Update existing registration
+        result = await supabase
+          .from("farmer_registrations")
+          .update({
+            name: formData.name,
+            aadhar_number: formData.aadharNumber,
+            address: formData.address,
+            state: formData.state,
+            pincode: formData.pincode,
+            crops: filteredCrops,
+            other_crop: formData.otherCrop || null,
+            profile_picture_url: profilePictureUrl,
+            role: "farmer",
+          })
+          .eq("user_id", userId);
+      } else {
+        // Insert new registration
+        result = await supabase
+          .from("farmer_registrations")
+          .insert({
+            user_id: userId,
+            name: formData.name,
+            aadhar_number: formData.aadharNumber,
+            address: formData.address,
+            state: formData.state,
+            pincode: formData.pincode,
+            crops: filteredCrops,
+            other_crop: formData.otherCrop || null,
+            profile_picture_url: profilePictureUrl,
+          });
+      }
+
+      if (result.error) throw result.error;
+
+      console.log("Registration successful:", result.data);
       router.push(`/farmer/${userId}`); // Redirect to main page after successful registration
     } catch (error) {
       console.error("Error submitting form:", error);
       setError(
-        "An error occurred while submitting the form. Please try again."
+        `An error occurred while submitting the form: || 'Please try again.'}`
       );
     }
   };
@@ -253,6 +312,36 @@ export default function FarmerRegistration({
                   />
                 </div>
               )}
+
+              {/* Profile Picture Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Profile Picture
+                </label>
+                <div className="mt-1 flex items-center space-x-4">
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="Profile preview"
+                      className="h-20 w-20 rounded-full object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    {previewUrl ? "Change Picture" : "Upload Picture"}
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="mt-6">

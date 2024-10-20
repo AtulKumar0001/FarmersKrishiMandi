@@ -1,21 +1,22 @@
 // components/Settings.tsx
 'use client'
+
 import React, { useState, useEffect } from 'react'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
+
 // List of common crops in India
 const cropOptions = [
   'Rice', 'Wheat', 'Maize', 'Millets', 'Pulses', 'Cotton', 'Sugarcane', 'Oilseeds',
   'Fruits', 'Vegetables', 'Tea', 'Coffee', 'Jute', 'Rubber', 'Spices', 'Other'
 ]
-interface SettingsProps {
-  userId: string;
-}
+
 interface FarmerData {
   name: string;
   aadhar_number: string;
@@ -26,7 +27,8 @@ interface FarmerData {
   other_crop: string | null;
   photo_url: string | null;
 }
-const Settings: React.FC<SettingsProps> = ({ userId }) => {
+
+const Settings: React.FC = () => {
   const router = useRouter()
   const [formData, setFormData] = useState<{
     name: string;
@@ -35,7 +37,7 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
     state: string;
     pincode: string;
     crops: string[];
-    otherCrop: string | '';
+    otherCrop: string;
     photo: File | null;
   }>({
     name: '',
@@ -46,23 +48,37 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
     crops: [],
     otherCrop: '',
     photo: null
-  });  
+  })
+  
   const [existingPhoto, setExistingPhoto] = useState<string | null>(null)
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  // Fetch existing user data
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pathSegments = window.location.pathname.split('/')
+      const id = pathSegments[2] // Assuming the user ID is the third segment in the path
+      setUserId(id)
+    }
+  }, [])
+
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!userId) return
+
       const { data, error } = await supabase
         .from<FarmerData>('farmer_registrations')
         .select('*')
         .eq('user_id', userId)
         .single()
+
       if (error) {
         console.error('Error fetching user data:', error)
-        setError('Failed to load user data.')
-      } else {
+      } else if (data) {
+        console.log(data)
         setFormData({
           name: data.name,
           aadharNumber: data.aadhar_number,
@@ -73,15 +89,18 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
           otherCrop: data.other_crop || '',
           photo: null
         })
-        setExistingPhoto(data.photo_url)
+        setExistingPhoto(data.profile_picture_url)
+        setPreviewPhoto(data.profile_picture_url)
       }
     }
     fetchUserData()
   }, [userId])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prevState => ({ ...prevState, [name]: value }))
   }
+
   const handleCropChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const crop = e.target.value
     setFormData(prevState => ({
@@ -91,40 +110,47 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
         : prevState.crops.filter(c => c !== crop)
     }))
   }
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prevState => ({ ...prevState, photo: e.target.files![0] }))
+      const file = e.target.files[0]
+      setFormData(prevState => ({ ...prevState, photo: file }))
+      setPreviewPhoto(URL.createObjectURL(file))
     }
   }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
     setLoading(true)
+
     try {
       let photoUrl = existingPhoto
-      // If a new photo is selected, upload it
+
       if (formData.photo) {
         const fileExt = formData.photo.name.split('.').pop()
         const fileName = `${userId}-${Date.now()}.${fileExt}`
         const filePath = `${fileName}`
-        const { data: uploadData, error: uploadError } = await supabase
+
+        const { error: uploadError } = await supabase
           .storage
-          .from('profile-photos')
+          .from('PFP')
           .upload(filePath, formData.photo, {
             upsert: true
           })
+
         if (uploadError) throw uploadError
-        // Get the public URL
-        const { publicURL, error: publicUrlError } = supabase
+
+        const { data: publicUrlData } = supabase
           .storage
-          .from('profile-photos')
+          .from('PFP')
           .getPublicUrl(filePath)
-        if (publicUrlError) throw publicUrlError
-        photoUrl = publicURL
+
+        photoUrl = publicUrlData.publicUrl
       }
-      // Update user data
-      const { data, error } = await supabase
+
+      const { error } = await supabase
         .from('farmer_registrations')
         .update({
           name: formData.name,
@@ -134,13 +160,16 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
           pincode: formData.pincode,
           crops: formData.crops,
           other_crop: formData.otherCrop || null,
-          photo_url: photoUrl
+          profile_picture_url: photoUrl
         })
         .eq('user_id', userId)
+
       if (error) throw error
+
       setSuccess('Profile updated successfully.')
-      router.refresh() // Refresh the page to show updated data
-    } catch (error: any) {
+      setExistingPhoto(photoUrl)
+      router.refresh()
+    } catch (error) {
       console.error('Error updating profile:', error)
       setError('An error occurred while updating your profile. Please try again.')
     } finally {
@@ -158,9 +187,9 @@ const Settings: React.FC<SettingsProps> = ({ userId }) => {
             <div className="mb-6">
               <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-2">Profile Photo</h3>
               <div className="flex items-center space-x-6">
-                {existingPhoto ? (
+                {previewPhoto ? (
                   <Image
-                    src={existingPhoto}
+                    src={previewPhoto}
                     alt="Profile Photo"
                     width={120}
                     height={120}
