@@ -5,12 +5,29 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const error = requestUrl.searchParams.get('error')
+  const errorDescription = requestUrl.searchParams.get('error_description')
 
-  if (code) {
-    const supabase = createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+  if (error) {
+    console.error(`Authentication error: ${error}, Description: ${errorDescription}`)
+    return NextResponse.redirect(`${requestUrl.origin}/login`)
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(`${requestUrl.origin}/farmer/`)
+  if (code) {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (error) throw error
+
+      // Successful authentication, redirect to farmer dashboard
+      return NextResponse.redirect(`${requestUrl.origin}/farmer/`)
+    } catch (error) {
+      console.error('Error exchanging code for session:', error)
+      return NextResponse.redirect(`${requestUrl.origin}/login`)
+    }
+  }
+
+  // If no code and no error, redirect to login page
+  return NextResponse.redirect(`${requestUrl.origin}/login`)
 }
