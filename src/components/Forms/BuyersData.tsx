@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -8,12 +8,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// List of common crops in India
-interface FarmerRegistrationProps {
+interface BuyerRegistrationProps {
   userId: string;
 }
 
-export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
+export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -23,14 +22,23 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
     pincode: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfilePicture(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,6 +46,27 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
     setError(null);
 
     try {
+      let profilePictureUrl = null;
+
+      // Upload profile picture if selected
+      if (profilePicture) {
+        const fileExt = profilePicture.name.split('.').pop();
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('PFP')
+          .upload(fileName, profilePicture, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL of uploaded file
+        const { data: { publicUrl } } = supabase.storage
+          .from('PFP')
+          .getPublicUrl(fileName);
+
+        profilePictureUrl = publicUrl;
+      }
+
       const { data, error } = await supabase
         .from("buyer_registrations")
         .insert({
@@ -47,6 +76,7 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
           address: formData.address,
           state: formData.state,
           pincode: formData.pincode,
+          profile_picture_url: profilePictureUrl,
           role: "buyer",
         });
 
@@ -168,6 +198,36 @@ export default function BuyerRegistration({ userId }: FarmerRegistrationProps) {
                   pattern="\d{6}"
                   title="Please enter a valid 6-digit pincode"
                 />
+              </div>
+
+              {/* Profile Picture Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Profile Picture
+                </label>
+                <div className="mt-1 flex items-center space-x-4">
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="Profile preview"
+                      className="h-20 w-20 rounded-full object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    {previewUrl ? "Change Picture" : "Upload Picture"}
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
               </div>
             </div>
 
