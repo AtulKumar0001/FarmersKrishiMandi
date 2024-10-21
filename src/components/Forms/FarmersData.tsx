@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -320,10 +321,12 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
                 </label>
                 <div className="mt-1 flex items-center space-x-4">
                   {previewUrl && (
-                    <img
+                    <Image
                       src={previewUrl}
                       alt="Profile preview"
-                      className="h-20 w-20 rounded-full object-cover"
+                      width={80}
+                      height={80}
+                      className="rounded-full object-cover"
                     />
                   )}
                   <button

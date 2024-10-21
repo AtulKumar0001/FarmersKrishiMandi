@@ -17,10 +17,10 @@ type Props = {
     link: string;
     icon: React.ReactNode;
   }[];
-  userRole : string,
+  userName : string,
 };
 
-const MenuOptions = ({ sidebarLogo, sidebarOpt, userRole }: Props) => {
+const MenuOptions = ({ sidebarLogo, sidebarOpt, userName }: Props) => {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -47,7 +47,7 @@ const MenuOptions = ({ sidebarLogo, sidebarOpt, userRole }: Props) => {
           <Compass className="text-black dark:text-white" />
           <div className="flex flex-col">
             <span className="text-black dark:text-white">Dashboard</span>
-            <span className="text-muted-foreground text-sm ">{userRole}</span>
+            <span className="text-muted-foreground text-sm ">{userName}</span>
           </div>
         </div>
       </Button>

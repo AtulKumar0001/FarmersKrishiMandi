@@ -1,11 +1,12 @@
 import React from 'react'
 import MenuOptions from './menu-options'
 import { Home, FileText, Settings, HelpCircle } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
 type Props = {
   farmerId: string | null,
   buyerId: string | null
 }
-const Sidebar = ({farmerId,buyerId}:Props) => {
+const Sidebar = async ({farmerId,buyerId}:Props) => {
 
   const sidebarOptionFarmer = [
     { id: '1', name: 'Home', link: `/farmer/${farmerId}/Home`, icon: <Home size={20} /> },
@@ -25,17 +26,40 @@ const Sidebar = ({farmerId,buyerId}:Props) => {
   ]
 
   if(farmerId){
+    const supabase = createClient();
+    const { data: farmerData, error } = await supabase
+      .from('farmer_registrations')
+      .select('user_id, name') 
+      .eq('user_id', farmerId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching farmer data:', error)
+      return null 
+    }
+
     return <MenuOptions
       defaultOpen={true}
       sidebarLogo="/logo.png"  
-      userRole='Farmer'
+      userName={farmerData?.name || 'Farmer'} // Use the farmer's name, fallback to 'Farmer' if not available
       sidebarOpt={sidebarOptionFarmer}
     />
   }else{
+    const supabase = createClient();
+    const { data: BuyerData, error } = await supabase
+      .from('farmer_registrations')
+      .select('user_id, name') 
+      .eq('user_id', buyerId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching farmer data:', error)
+      return null 
+    }
     return <MenuOptions
       defaultOpen={true}
       sidebarLogo="/logo.png"  
-      userRole='Buyer'
+      userName={BuyerData?.name || 'Farmer'}
       sidebarOpt={sidebarOptionBuyer}
     />
   }
