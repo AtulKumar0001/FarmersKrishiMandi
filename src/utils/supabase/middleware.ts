@@ -42,6 +42,10 @@ export async function updateSession(request: NextRequest) {
   if(url.pathname === '/site/aboutUs' ){
     return NextResponse.rewrite(new URL('/site/aboutUs', request.url))
   }
+  console.log(request.url)
+  if(url.pathname === '/mandiPrice' ){
+    return NextResponse.rewrite(new URL('/mandiPrice/', request.url))
+  }
   if (
     url.pathname === '/' ||
     (url.pathname === '/site' )

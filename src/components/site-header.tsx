@@ -15,6 +15,7 @@ export default function SiteHeader() {
     { title: "Home", href: "/site" },
     { title: "About Us", href: "/site/aboutUs" },
     { title: "ContactUs", href: "/site/contactUs" },
+    { title: "Mandi Price", href: "/mandiPrice/" },
   ];
 
   useEffect(() => {
