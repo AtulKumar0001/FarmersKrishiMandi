@@ -47,7 +47,7 @@ const Sidebar = async ({farmerId,buyerId}:Props) => {
   }else{
     const supabase = createClient();
     const { data: BuyerData, error } = await supabase
-      .from('farmer_registrations')
+      .from('buyer_registrations')
       .select('user_id, name') 
       .eq('user_id', buyerId)
       .single()
@@ -56,10 +56,11 @@ const Sidebar = async ({farmerId,buyerId}:Props) => {
       console.error('Error fetching farmer data:', error)
       return null 
     }
+    console.log(BuyerData)
     return <MenuOptions
       defaultOpen={true}
       sidebarLogo="/logo.png"  
-      userName={BuyerData?.name || 'Farmer'}
+      userName={BuyerData?.name || 'Buyer'}
       sidebarOpt={sidebarOptionBuyer}
     />
   }
