@@ -1,15 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ModeToggle } from "./mode-toggle";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function SiteHeader() {
-  const router = useRouter();
   const pathname = usePathname();
-  const [currentLang, setCurrentLang] = useState('en');
+  const searchParams = useSearchParams();
+  const [currentLang, setCurrentLang] = useState(() => searchParams.get('lang') || 'en');
 
   const navLinks = [
     { title: "Home", href: "/site" },
@@ -19,28 +20,29 @@ export default function SiteHeader() {
   ];
 
   useEffect(() => {
-    // Get the current language from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const lang = urlParams.get('lang');
+    const lang = searchParams.get('lang');
     if (lang) {
       setCurrentLang(lang);
     }
-  }, [pathname]);
+  }, [searchParams]);
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setCurrentLang(newLang);
-
-    // Construct the new URL with the updated language
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('lang', newLang);
-    const newUrl = `${pathname}?${urlParams.toString()}`;
     
-    router.push(newUrl);
+    // Create a new URLSearchParams object
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('lang', newLang);
+
+    // Construct the new URL
+    const newPathname = `${pathname}?${newSearchParams.toString()}`;
+    
+    // Use window.location to navigate
+    window.location.href = newPathname;
   };
 
   return (
-    <header className="w-full border-b dark:border-border/40 dark:bg-background/95  bg-white py-4">
+    <header className="w-full border-b dark:border-border/40 dark:bg-background/95 bg-white py-4">
       <div className="container max-w-screen-2xl mx-auto px-4 flex items-center justify-between">
         <Link className="flex items-center space-x-2" href="/">
           <span className="font-bold text-2xl text-primary text-white flex px-2">
@@ -87,18 +89,13 @@ export default function SiteHeader() {
             <option value="pa" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">ਪੰਜਾਬੀ</option>
             <option value="ur" className="bg-white dark:bg-background text-black dark:text-white hover:bg-primary/90 dark:hover:bg-primary/70">اردو</option>
           </select>
-          <form
-            action={() => {
-              router.push("/login");
-            }}
-          >
+          <Link href={`/login?lang=${currentLang}`}>
             <Button
-              type="submit"
               className="px-4 py-2 rounded-md bg-white text-black border border-black dark:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-colors duration-200 shadow-sm font-medium text-sm hover:text-white dark:bg-gray-950 dark:hover:bg-gray-700 dark:border-gray-700 dark:text-white"
             >
               Login
             </Button>
-          </form>
+          </Link>
         </div>
       </div>
     </header>

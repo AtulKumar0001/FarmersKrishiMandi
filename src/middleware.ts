@@ -1,14 +1,31 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/utils/supabase/middleware'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
+export function middleware(request: NextRequest) {
+  // Get the pathname of the request (e.g. /, /about, /blog/first-post)
 
+  // Get the lang parameter from the URL
+  const lang = request.nextUrl.searchParams.get('lang')
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  // If lang parameter is present, add it to all internal links
+  if (lang) {
+    const response = NextResponse.next()
+    response.headers.set('x-lang', lang)
+    return response
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
