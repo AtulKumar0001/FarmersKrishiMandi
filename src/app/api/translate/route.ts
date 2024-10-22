@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { translate } from 'google-translate-api-x';
+import { translate } from '@vitalets/google-translate-api';
 import NodeCache from 'node-cache';
 
 // Create a cache with a default TTL of 1 hour
