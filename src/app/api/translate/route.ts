@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { translate } from '@vitalets/google-translate-api';
+import { translate } from 'google-translate-api-x';
 import NodeCache from 'node-cache';
 
 // Create a cache with a default TTL of 1 hour
@@ -9,23 +9,31 @@ type TranslatableValue = string | TranslatableObject | TranslatableArray;
 type TranslatableObject = { [key: string]: TranslatableValue };
 type TranslatableArray = TranslatableValue[];
 
+async function translateText(text: string, targetLanguage: string): Promise<string> {
+  const cacheKey = `${text}:${targetLanguage}`;
+  const cachedResult = cache.get(cacheKey);
+  if (cachedResult) {
+    return cachedResult as string;
+  }
+  const result = await translate(text, { to: targetLanguage });
+  cache.set(cacheKey, result.text);
+  return result.text;
+}
+
 async function translateObject(obj: TranslatableValue, targetLanguage: string): Promise<TranslatableValue> {
   if (typeof obj === 'string') {
-    const cacheKey = `${obj}:${targetLanguage}`;
-    const cachedResult = cache.get(cacheKey);
-    if (cachedResult) {
-      return cachedResult as string;
-    }
-    const result = await translate(obj, { to: targetLanguage });
-    cache.set(cacheKey, result.text);
-    return result.text;
+    return await translateText(obj, targetLanguage);
   } else if (Array.isArray(obj)) {
     return Promise.all(obj.map(item => translateObject(item, targetLanguage)));
   } else if (typeof obj === 'object' && obj !== null) {
     const translatedObj: TranslatableObject = {};
-    await Promise.all(Object.entries(obj).map(async ([key, value]) => {
-      translatedObj[key] = await translateObject(value, targetLanguage);
-    }));
+    const entries = Object.entries(obj);
+    const translatedEntries = await Promise.all(
+      entries.map(async ([key, value]) => [key, await translateObject(value, targetLanguage)])
+    );
+    translatedEntries.forEach(([key, value]) => {
+      translatedObj[key as string] = value;
+    });
     return translatedObj;
   }
   return obj;
