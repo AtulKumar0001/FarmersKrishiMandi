@@ -25,6 +25,28 @@ interface Translations {
   languageOptions: { [key: string]: string };
 }
 
+// Define SpeechRecognition type
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
+// Define SpeechRecognitionEvent type
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+// Define SpeechRecognitionErrorEvent type
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
 const KrishiGPT: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -130,29 +152,31 @@ const KrishiGPT: React.FC = () => {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechRecognition = (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition || (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition;
             if (SpeechRecognition) {
                 recognitionRef.current = new SpeechRecognition();
-                recognitionRef.current.continuous = true;
-                recognitionRef.current.interimResults = true;
-                recognitionRef.current.lang = selectedLanguage;
+                if (recognitionRef.current) {
+                    recognitionRef.current.continuous = true;
+                    recognitionRef.current.interimResults = true;
+                    recognitionRef.current.lang = selectedLanguage;
 
-                recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-                    const transcript = Array.from(event.results)
-                        .map(result => result[0])
-                        .map(result => result.transcript)
-                        .join('');
-                    setInputMessage(transcript);
-                };
+                    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => (result as SpeechRecognitionResult)[0])
+                            .map(result => result.transcript)
+                            .join('');
+                        setInputMessage(transcript);
+                    };
 
-                recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-                    console.error('Speech recognition error', event.error);
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+                        console.error('Speech recognition error', event.error);
+                        setIsListening(false);
+                    };
 
-                recognitionRef.current.onend = () => {
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onend = () => {
+                        setIsListening(false);
+                    };
+                }
             } else {
                 setIsSpeechRecognitionSupported(false);
             }

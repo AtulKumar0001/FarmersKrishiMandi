@@ -17,17 +17,6 @@ const cropOptions = [
   'Fruits', 'Vegetables', 'Tea', 'Coffee', 'Jute', 'Rubber', 'Spices', 'Other'
 ]
 
-interface FarmerData {
-  name: string;
-  aadhar_number: string;
-  address: string;
-  state: string;
-  pincode: string;
-  crops: string[];
-  other_crop: string | null;
-  photo_url: string | null;
-}
-
 const Settings: React.FC = () => {
   const router = useRouter()
   const [formData, setFormData] = useState<{
@@ -70,7 +59,7 @@ const Settings: React.FC = () => {
       if (!userId) return
 
       const { data, error } = await supabase
-        .from<FarmerData>('farmer_registrations')
+        .from('farmer_registrations')
         .select('*')
         .eq('user_id', userId)
         .single()

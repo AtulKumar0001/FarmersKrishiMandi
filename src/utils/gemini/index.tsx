@@ -13,13 +13,13 @@ export async function getGeneratedContent(prompt: string): Promise<string> {
   try {
     const result = await model.generateContent(prompt);
     return result.response.text();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error generating content:", error);
     
-    if (error.message.includes("API key not valid")) {
+    if (error instanceof Error && error.message.includes("API key not valid")) {
       return "Error: API key is invalid or not properly set. Please check your environment variables.";
     }
     
-    return `An error occurred while generating content: ${error.message}`;
+    return `An error occurred while generating content: ${error instanceof Error ? error.message : 'Unknown error'}`;
   }
 }

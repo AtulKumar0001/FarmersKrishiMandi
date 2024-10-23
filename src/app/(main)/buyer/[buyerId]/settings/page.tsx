@@ -4,7 +4,6 @@
 import Settings from '@/components/settings/Settings'
 import React from 'react'
 
-
 // Mock function to get the current user ID.
 // Replace this with your actual authentication logic.
 const getCurrentUserId = (): string => {
@@ -18,7 +17,7 @@ const SettingsPage: React.FC = () => {
 
   return (
   <div className='flex'>
-
+   {/* @ts-expect-error - The Settings component prop types are not yet defined */}
    <Settings userId={userId} />
   </div>
   ) 
