@@ -3,49 +3,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { getGeneratedContent } from '@/utils/gemini';
 import { useSearchParams } from 'next/navigation';
-
-interface Message {
-  text: string;
-  sender: 'user' | 'ai';
-}
-
-interface Translations {
-  startChatting: string;
-  typePlaceholder: string;
-  send: string;
-  selectVoice: string;
-  autoSpeakLabel: string;
-  speakButton: string;
-  stopSpeakingButton: string;
-  errorSpeaking: string;
-  noVoiceSelected: string;
-  noHindiVoice: string;
-  speechSynthesisNotSupported: string;
-  speechRecognitionNotSupported: string;
-  languageOptions: { [key: string]: string };
-}
-
-// Define SpeechRecognition type
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-}
-
-// Define SpeechRecognitionEvent type
-interface SpeechRecognitionEvent {
-  results: SpeechRecognitionResultList;
-}
-
-// Define SpeechRecognitionErrorEvent type
-interface SpeechRecognitionErrorEvent {
-  error: string;
-}
+import { Message, SpeechRecognition, SpeechRecognitionErrorEvent, SpeechRecognitionEvent, Translations } from '@/types/help';
 
 const KrishiGPT: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
