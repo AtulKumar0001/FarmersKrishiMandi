@@ -141,6 +141,13 @@ export default function Home() {
         }
 
         const translatedContent: Translations = await response.json();
+        
+        // Preserve the icon property for features
+        translatedContent.features = translatedContent.features.map((feature, index) => ({
+          ...feature,
+          icon: contentToTranslate.features[index].icon
+        }));
+
         setTranslations(translatedContent);
       } catch (error) {
         console.error('Translation error:', error);
