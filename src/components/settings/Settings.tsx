@@ -1,35 +1,38 @@
 // components/Settings.tsx
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import React, { useState, useEffect } from "react";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // List of common crops in India
 const cropOptions = [
-  'Rice', 'Wheat', 'Maize', 'Millets', 'Pulses', 'Cotton', 'Sugarcane', 'Oilseeds',
-  'Fruits', 'Vegetables', 'Tea', 'Coffee', 'Jute', 'Rubber', 'Spices', 'Other'
-]
-
-interface FarmerData {
-  name: string;
-  aadhar_number: string;
-  address: string;
-  state: string;
-  pincode: string;
-  crops: string[];
-  other_crop: string | null;
-  photo_url: string | null;
-}
+  "Rice",
+  "Wheat",
+  "Maize",
+  "Millets",
+  "Pulses",
+  "Cotton",
+  "Sugarcane",
+  "Oilseeds",
+  "Fruits",
+  "Vegetables",
+  "Tea",
+  "Coffee",
+  "Jute",
+  "Rubber",
+  "Spices",
+  "Other",
+];
 
 const Settings: React.FC = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState<{
     name: string;
     aadharNumber: string;
@@ -40,45 +43,45 @@ const Settings: React.FC = () => {
     otherCrop: string;
     photo: File | null;
   }>({
-    name: '',
-    aadharNumber: '',
-    address: '',
-    state: '',
-    pincode: '',
+    name: "",
+    aadharNumber: "",
+    address: "",
+    state: "",
+    pincode: "",
     crops: [],
-    otherCrop: '',
-    photo: null
-  })
-  
-  const [existingPhoto, setExistingPhoto] = useState<string | null>(null)
-  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [userId, setUserId] = useState<string | null>(null)
+    otherCrop: "",
+    photo: null,
+  });
+
+  const [existingPhoto, setExistingPhoto] = useState<string | null>(null);
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const pathSegments = window.location.pathname.split('/')
-      const id = pathSegments[2] // Assuming the user ID is the third segment in the path
-      setUserId(id)
+    if (typeof window !== "undefined") {
+      const pathSegments = window.location.pathname.split("/");
+      const id = pathSegments[2]; // Assuming the user ID is the third segment in the path
+      setUserId(id);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!userId) return
+      if (!userId) return;
 
       const { data, error } = await supabase
-        .from<FarmerData>('farmer_registrations')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
+        .from("farmer_registrations")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
       if (error) {
-        console.error('Error fetching user data:', error)
+        console.error("Error fetching user data:", error);
       } else if (data) {
-        console.log(data)
+        console.log(data);
         setFormData({
           name: data.name,
           aadharNumber: data.aadhar_number,
@@ -86,72 +89,89 @@ const Settings: React.FC = () => {
           state: data.state,
           pincode: data.pincode,
           crops: data.crops || [],
-          otherCrop: data.other_crop || '',
-          photo: null
-        })
-        setExistingPhoto(data.profile_picture_url)
-        setPreviewPhoto(data.profile_picture_url)
+          otherCrop: data.other_crop || "",
+          photo: null,
+        });
+        setExistingPhoto(data.profile_picture_url);
+        setPreviewPhoto(data.profile_picture_url);
       }
-    }
-    fetchUserData()
-  }, [userId])
+    };
+    fetchUserData();
+  }, [userId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prevState => ({ ...prevState, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const handleCropChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const crop = e.target.value
-    setFormData(prevState => ({
+    const crop = e.target.value;
+    setFormData((prevState) => ({
       ...prevState,
       crops: e.target.checked
         ? [...prevState.crops, crop]
-        : prevState.crops.filter(c => c !== crop)
-    }))
-  }
+        : prevState.crops.filter((c) => c !== crop),
+    }));
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setFormData(prevState => ({ ...prevState, photo: file }))
-      setPreviewPhoto(URL.createObjectURL(file))
+      const file = e.target.files[0];
+      setFormData((prevState) => ({ ...prevState, photo: file }));
+      setPreviewPhoto(URL.createObjectURL(file));
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError(null)
-    setSuccess(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
 
     try {
-      let photoUrl = existingPhoto
+      let photoUrl = existingPhoto;
 
       if (formData.photo) {
-        const fileExt = formData.photo.name.split('.').pop()
-        const fileName = `${userId}-${Date.now()}.${fileExt}`
-        const filePath = `${fileName}`
+        console.log("Uploading new photo...");
+        const fileExt = formData.photo.name.split(".").pop();
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-        const { error: uploadError } = await supabase
-          .storage
-          .from('PFP')
+        const { error: uploadError } = await supabase.storage
+          .from("PFP")
           .upload(filePath, formData.photo, {
-            upsert: true
-          })
+            upsert: true,
+          });
 
-        if (uploadError) throw uploadError
+        if (uploadError) {
+          console.error("Error uploading photo:", uploadError);
+          throw uploadError;
+        }
 
-        const { data: publicUrlData } = supabase
-          .storage
-          .from('PFP')
-          .getPublicUrl(filePath)
+        const { data: publicUrlData } = supabase.storage
+          .from("PFP")
+          .getPublicUrl(filePath);
 
-        photoUrl = publicUrlData.publicUrl
+        photoUrl = publicUrlData.publicUrl;
       }
 
-      const { error } = await supabase
-        .from('farmer_registrations')
+      console.log("Updating profile with data:", {
+        name: formData.name,
+        aadhar_number: formData.aadharNumber,
+        address: formData.address,
+        state: formData.state,
+        pincode: formData.pincode,
+        crops: formData.crops,
+        other_crop: formData.otherCrop || null,
+        profile_picture_url: photoUrl,
+      });
+
+      const { error, data } = await supabase
+        .from("farmer_registrations")
         .update({
           name: formData.name,
           aadhar_number: formData.aadharNumber,
@@ -160,32 +180,43 @@ const Settings: React.FC = () => {
           pincode: formData.pincode,
           crops: formData.crops,
           other_crop: formData.otherCrop || null,
-          profile_picture_url: photoUrl
+          profile_picture_url: photoUrl,
         })
-        .eq('user_id', userId)
+        .eq("user_id", userId);
 
-      if (error) throw error
+      if (error) {
+        console.error("Error updating profile in Supabase:", error);
+        throw error;
+      }
 
-      setSuccess('Profile updated successfully.')
-      setExistingPhoto(photoUrl)
-      router.refresh()
+      console.log("Profile updated successfully. Response data:", data);
+      setSuccess("Profile updated successfully.");
+      setExistingPhoto(photoUrl);
+      setPreviewPhoto(photoUrl);
+      router.refresh();
     } catch (error) {
-      console.error('Error updating profile:', error)
-      setError('An error occurred while updating your profile. Please try again.')
+      console.error("Error updating profile:", error);
+      setError(
+        "An error occurred while updating your profile. Please try again."
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
   return (
-    <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900 py-12 px-8 sm:px-12 lg:px-16">    
+    <div className="min-h-screen flex bg-gray-100 dark:bg-gray-900 py-12 px-8 sm:px-12 lg:px-16">
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="flex flex-col lg:flex-row">
           {/* Left Column */}
           <div className="w-full lg:w-1/2 p-6 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
-            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">Profile Settings</h2>
+            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
+              Profile Settings
+            </h2>
             {/* Profile Photo */}
             <div className="mb-6">
-              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-2">Profile Photo</h3>
+              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Profile Photo
+              </h3>
               <div className="flex items-center space-x-6">
                 {previewPhoto ? (
                   <Image
@@ -194,6 +225,13 @@ const Settings: React.FC = () => {
                     width={120}
                     height={120}
                     className="rounded-full object-cover"
+                    priority
+                    onError={(
+                      e: React.SyntheticEvent<HTMLImageElement, Event>
+                    ) => {
+                      console.error("Error loading image:", e);
+                      setPreviewPhoto(null);
+                    }}
                   />
                 ) : (
                   <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center">
@@ -201,7 +239,10 @@ const Settings: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <label htmlFor="photo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="photo"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     Change Photo
                   </label>
                   <input
@@ -221,12 +262,17 @@ const Settings: React.FC = () => {
             </div>
             {/* Basic Information */}
             <div className="mb-6">
-              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">Basic Information</h3>
+              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">
+                Basic Information
+              </h3>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   {/* Full Name */}
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Full Name
                     </label>
                     <input
@@ -241,7 +287,10 @@ const Settings: React.FC = () => {
                   </div>
                   {/* Aadhaar Number */}
                   <div>
-                    <label htmlFor="aadharNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="aadharNumber"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Aadhaar Number
                     </label>
                     <input
@@ -262,10 +311,14 @@ const Settings: React.FC = () => {
                       type="submit"
                       disabled={loading}
                       className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                                  ${loading ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}
+                                  ${
+                                    loading
+                                      ? "bg-green-400 cursor-not-allowed"
+                                      : "bg-green-600 hover:bg-green-700"
+                                  }
                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                     >
-                      {loading ? 'Updating...' : 'Update Profile'}
+                      {loading ? "Updating..." : "Update Profile"}
                     </button>
                   </div>
                 </div>
@@ -274,14 +327,21 @@ const Settings: React.FC = () => {
           </div>
           {/* Right Column */}
           <div className="w-full lg:w-1/2 p-6">
-            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">Additional Settings</h2>
+            <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6">
+              Additional Settings
+            </h2>
             {/* Address Information */}
             <div className="mb-6">
-              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">Address</h3>
+              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">
+                Address
+              </h3>
               <div className="space-y-4">
                 {/* Address */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Street Address
                   </label>
                   <textarea
@@ -298,7 +358,10 @@ const Settings: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* State */}
                   <div>
-                    <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="state"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       State
                     </label>
                     <input
@@ -313,7 +376,10 @@ const Settings: React.FC = () => {
                   </div>
                   {/* Pincode */}
                   <div>
-                    <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="pincode"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Pincode
                     </label>
                     <input
@@ -333,7 +399,9 @@ const Settings: React.FC = () => {
             </div>
             {/* Crops Information */}
             <div className="mb-6">
-              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">Crops Information</h3>
+              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-200 mb-4">
+                Crops Information
+              </h3>
               <div className="mb-4">
                 <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Types of Crops Grown
@@ -350,16 +418,22 @@ const Settings: React.FC = () => {
                         onChange={handleCropChange}
                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={crop} className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                      <label
+                        htmlFor={crop}
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+                      >
                         {crop}
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
-              {formData.crops.includes('Other') && (
+              {formData.crops.includes("Other") && (
                 <div>
-                  <label htmlFor="otherCrop" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="otherCrop"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Other Crop
                   </label>
                   <input
@@ -388,6 +462,6 @@ const Settings: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
-export default Settings
+  );
+};
+export default Settings;

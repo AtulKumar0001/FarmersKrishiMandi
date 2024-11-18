@@ -1,12 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { getGeneratedContent } from '@/utils/gemini'; // Import the generateContent function
-
-interface Message {
-  text: string;
-  sender: 'user' | 'ai';
-}
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { getGeneratedContent } from '@/utils/gemini';
+import { useSearchParams } from 'next/navigation';
+import { Message, SpeechRecognition, SpeechRecognitionErrorEvent, SpeechRecognitionEvent, Translations } from '@/types/help';
 
 const KrishiGPT: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -23,35 +20,121 @@ const KrishiGPT: React.FC = () => {
     const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
     const [voiceError, setVoiceError] = useState<string | null>(null);
 
+    const searchParams = useSearchParams();
+    const [language, setLanguage] = useState(searchParams.get('lang') || 'en');
+    const [translations, setTranslations] = useState<Translations>({} as Translations);
+    const [isTranslating, setIsTranslating] = useState(false);
+
+    const contentToTranslate = useMemo<Translations>(() => ({
+        startChatting: "Start Chatting",
+        typePlaceholder: "Type a message...",
+        send: "Send",
+        selectVoice: "Select Voice:",
+        autoSpeakLabel: "Auto-speak AI responses",
+        speakButton: "Speak",
+        stopSpeakingButton: "Stop Speaking",
+        errorSpeaking: "Error speaking:",
+        noVoiceSelected: "Unable to speak. No voice selected or speech synthesis not supported.",
+        noHindiVoice: "No Hindi voice found. Using default voice.",
+        speechSynthesisNotSupported: "Speech synthesis not supported in this browser.",
+        speechRecognitionNotSupported: "Speech recognition is not supported in your browser.",
+        languageOptions: {
+            "en-IN": "English",
+            "hi-IN": "हिन्दी",
+            "pa-IN": "ਪੰਜਾਬੀ",
+            "ta-IN": "தமிழ்",
+            "mr-IN": "मराठी",
+            "bn-IN": "বাংলা",
+            "ks-IN": "कॉशुर",
+            "doi-IN": "डोगरी",
+            "as-IN": "অসমীয়া",
+            "kn-IN": "ಕನ್ನಡ",
+            "te-IN": "తెలుగు",
+            "gu-IN": "ગુજરાતી",
+            "ur-IN": "اردو"
+        }
+    }), []);
+
+    useEffect(() => {
+        const newLang = searchParams.get('lang');
+        if (newLang && newLang !== language) {
+            setLanguage(newLang);
+        }
+        setIsTranslating(true);
+    }, [searchParams, language]);
+
+    useEffect(() => {
+        const translateContent = async () => {
+            if (language === 'en') {
+                setTranslations(contentToTranslate);
+                setIsTranslating(false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ texts: contentToTranslate, targetLanguage: language }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Translation request failed');
+                }
+
+                const translatedContent: Translations = await response.json();
+                setTranslations(translatedContent);
+            } catch (error) {
+                console.error('Translation error:', error);
+                setTranslations(contentToTranslate);
+            } finally {
+                setIsTranslating(false);
+            }
+        };
+
+        translateContent();
+    }, [language, contentToTranslate]);
+
+    const getContent = (key: keyof Translations): string | { [key: string]: string } => {
+        if (isTranslating || !translations[key]) {
+            return contentToTranslate[key];
+        }
+        return translations[key];
+    };
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechRecognition = (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition || (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition;
             if (SpeechRecognition) {
                 recognitionRef.current = new SpeechRecognition();
-                recognitionRef.current.continuous = true;
-                recognitionRef.current.interimResults = true;
-                recognitionRef.current.lang = selectedLanguage;
+                if (recognitionRef.current) {
+                    recognitionRef.current.continuous = true;
+                    recognitionRef.current.interimResults = true;
+                    recognitionRef.current.lang = selectedLanguage;
 
-                recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-                    const transcript = Array.from(event.results)
-                        .map(result => result[0])
-                        .map(result => result.transcript)
-                        .join('');
-                    setInputMessage(transcript);
-                };
+                    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => (result as SpeechRecognitionResult)[0])
+                            .map(result => result.transcript)
+                            .join('');
+                        setInputMessage(transcript);
+                    };
 
-                recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-                    console.error('Speech recognition error', event.error);
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+                        console.error('Speech recognition error', event.error);
+                        setIsListening(false);
+                    };
 
-                recognitionRef.current.onend = () => {
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onend = () => {
+                        setIsListening(false);
+                    };
+                }
             } else {
                 setIsSpeechRecognitionSupported(false);
             }
@@ -185,25 +268,15 @@ const KrishiGPT: React.FC = () => {
                             onChange={(e) => setSelectedLanguage(e.target.value)}
                             value={selectedLanguage}
                         >
-                            <option value="en-IN">English</option>
-                            <option value="hi-IN">हिन्दी</option>
-                            <option value="pa-IN">ਪੰਜਾਬੀ</option>
-                            <option value="ta-IN">தமிழ்</option>
-                            <option value="mr-IN">मराठी</option>
-                            <option value="bn-IN">বাংলা</option>
-                            <option value="ks-IN">कॉशुर</option>
-                            <option value="doi-IN">डोगरी</option>
-                            <option value="as-IN">অসমীয়া</option>
-                            <option value="kn-IN">ಕನ್ನಡ</option>
-                            <option value="te-IN">తెలుగు</option>
-                            <option value="gu-IN">ગુજરાતી</option>
-                            <option value="ur-IN">اردو</option>
+                            {Object.entries(getContent('languageOptions') as { [key: string]: string }).map(([code, name]) => (
+                                <option key={code} value={code}>{name}</option>
+                            ))}
                         </select>
                         <button
                             className="mt-4 w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
                             onClick={() => setShowLanguageModal(false)}
                         >
-                            Start Chatting
+                            {getContent('startChatting') as string}
                         </button>
                     </div>
                 </div>
@@ -221,7 +294,7 @@ const KrishiGPT: React.FC = () => {
                                     className="mt-2 text-gray-300 hover:text-white bg-gray-600 hover:bg-gray-500 p-1 rounded"
                                     onClick={() => speakMessage(message.text)}
                                 >
-                                    {isSpeaking ? 'Stop Speaking' : 'Speak'}
+                                    {isSpeaking ? getContent('stopSpeakingButton') as string : getContent('speakButton') as string}
                                 </button>
                             )}
                         </div>
@@ -235,7 +308,7 @@ const KrishiGPT: React.FC = () => {
                     <input
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}
-                        placeholder="Type a message..."
+                        placeholder={getContent('typePlaceholder') as string}
                         className="flex-1 bg-gray-800 text-white p-2 rounded"
                     />
                     <button
@@ -246,13 +319,13 @@ const KrishiGPT: React.FC = () => {
                         {isListening ? '⏹️' : '🎤'}
                     </button>
                     <button type="submit" className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-                        Send
+                        {getContent('send') as string}
                     </button>
                 </div>
                 <div className="flex flex-col space-y-2 mt-2">
                     <div className="flex items-center space-x-2">
                         <label htmlFor="voiceSelect" className="text-sm text-gray-300">
-                            Select Voice:
+                            {getContent('selectVoice') as string}
                         </label>
                         <select
                             id="voiceSelect"
@@ -279,7 +352,7 @@ const KrishiGPT: React.FC = () => {
                             className="form-checkbox h-5 w-5 text-blue-600"
                         />
                         <label htmlFor="autoSpeak" className="text-sm text-gray-300">
-                            Auto-speak AI responses
+                            {getContent('autoSpeakLabel') as string}
                         </label>
                     </div>
                 </div>

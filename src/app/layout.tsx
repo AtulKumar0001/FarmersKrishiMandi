@@ -3,6 +3,7 @@ import "./globals.css";
 import { JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { Suspense } from "react";
 
 const inter = JetBrains_Mono({ subsets: ["latin"] });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
           </ThemeProvider>
         </AuthProvider>
       </body>

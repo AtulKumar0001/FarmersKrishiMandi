@@ -3,27 +3,9 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { getGeneratedContent } from '@/utils/gemini';
 import { useSearchParams } from 'next/navigation';
+import { Message, SpeechRecognition, SpeechRecognitionErrorEvent, SpeechRecognitionEvent, Translations } from '@/types/help';
 
-interface Message {
-  text: string;
-  sender: 'user' | 'ai';
-}
 
-interface Translations {
-  startChatting: string;
-  typePlaceholder: string;
-  send: string;
-  selectVoice: string;
-  autoSpeakLabel: string;
-  speakButton: string;
-  stopSpeakingButton: string;
-  errorSpeaking: string;
-  noVoiceSelected: string;
-  noHindiVoice: string;
-  speechSynthesisNotSupported: string;
-  speechRecognitionNotSupported: string;
-  languageOptions: { [key: string]: string };
-}
 
 const KrishiGPT: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -130,29 +112,31 @@ const KrishiGPT: React.FC = () => {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechRecognition = (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition || (window as Window & typeof globalThis & { SpeechRecognition?: new () => SpeechRecognition, webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition;
             if (SpeechRecognition) {
                 recognitionRef.current = new SpeechRecognition();
-                recognitionRef.current.continuous = true;
-                recognitionRef.current.interimResults = true;
-                recognitionRef.current.lang = selectedLanguage;
+                if (recognitionRef.current) {
+                    recognitionRef.current.continuous = true;
+                    recognitionRef.current.interimResults = true;
+                    recognitionRef.current.lang = selectedLanguage;
 
-                recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-                    const transcript = Array.from(event.results)
-                        .map(result => result[0])
-                        .map(result => result.transcript)
-                        .join('');
-                    setInputMessage(transcript);
-                };
+                    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => (result as SpeechRecognitionResult)[0])
+                            .map(result => result.transcript)
+                            .join('');
+                        setInputMessage(transcript);
+                    };
 
-                recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-                    console.error('Speech recognition error', event.error);
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+                        console.error('Speech recognition error', event.error);
+                        setIsListening(false);
+                    };
 
-                recognitionRef.current.onend = () => {
-                    setIsListening(false);
-                };
+                    recognitionRef.current.onend = () => {
+                        setIsListening(false);
+                    };
+                }
             } else {
                 setIsSpeechRecognitionSupported(false);
             }

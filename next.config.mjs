@@ -7,6 +7,14 @@ const nextConfig = {
       locales: ['en', 'hi', 'bn', 'te', 'mr', 'ta', 'gu', 'kn', 'ml', 'pa', 'ur'],
       defaultLocale: 'en',
     },
+    webpack: (config, { isServer }) => {
+      if (!isServer) {
+        config.watchOptions = {
+          ignored: ['**/.git/**', '**/node_modules/**', '**/.next/**']
+        }
+      }
+      return config
+    }
   };
   
   export default nextConfig;

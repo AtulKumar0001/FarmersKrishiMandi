@@ -19,6 +19,7 @@ const SettingsPage: React.FC = () => {
   return (
   <div className='flex'>
 
+   {/* @ts-expect-error - The Settings component prop types are not yet defined */}
    <Settings userId={userId} />
   </div>
   ) 
