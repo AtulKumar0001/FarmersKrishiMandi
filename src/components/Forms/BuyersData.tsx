@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
+import Image from "next/image";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -21,6 +21,7 @@ export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
     address: "",
     state: "",
     pincode: "",
+    phone_number: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
@@ -28,7 +29,9 @@ export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -51,19 +54,19 @@ export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
 
       // Upload profile picture if selected
       if (profilePicture) {
-        const fileExt = profilePicture.name.split('.').pop();
+        const fileExt = profilePicture.name.split(".").pop();
         const fileName = `${userId}-${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('PFP')
+          .from("PFP")
           .upload(fileName, profilePicture, { upsert: true });
 
         if (uploadError) throw uploadError;
 
         // Get public URL of uploaded file
-        const { data: { publicUrl } } = supabase.storage
-          .from('PFP')
-          .getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("PFP").getPublicUrl(fileName);
 
         profilePictureUrl = publicUrl;
       }
@@ -79,6 +82,7 @@ export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
           pincode: formData.pincode,
           profile_picture_url: profilePictureUrl,
           role: "buyer",
+          phone_number: formData.phone_number,
         });
 
       if (error) throw error;
@@ -122,6 +126,27 @@ export default function BuyerRegistration({ userId }: BuyerRegistrationProps) {
                   value={formData.name}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="phone_number"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Enter your Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone_number"
+                  id="phone_number"
+                  placeholder="0123456789"
+                  pattern="[0-9]{10}"
+                  required
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  title="Please enter a valid 10 Digit number"
                 />
               </div>
 

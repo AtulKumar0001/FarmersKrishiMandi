@@ -42,6 +42,7 @@ const Settings: React.FC = () => {
     crops: string[];
     otherCrop: string;
     photo: File | null;
+    phone_number: string;
   }>({
     name: "",
     aadharNumber: "",
@@ -51,6 +52,7 @@ const Settings: React.FC = () => {
     crops: [],
     otherCrop: "",
     photo: null,
+    phone_number: "",
   });
 
   const [existingPhoto, setExistingPhoto] = useState<string | null>(null);
@@ -81,7 +83,7 @@ const Settings: React.FC = () => {
       if (error) {
         console.error("Error fetching user data:", error);
       } else if (data) {
-        console.log(data);
+        // console.log(data);
         setFormData({
           name: data.name,
           aadharNumber: data.aadhar_number,
@@ -91,6 +93,7 @@ const Settings: React.FC = () => {
           crops: data.crops || [],
           otherCrop: data.other_crop || "",
           photo: null,
+          phone_number: data.phone_number,
         });
         setExistingPhoto(data.profile_picture_url);
         setPreviewPhoto(data.profile_picture_url);
@@ -168,6 +171,7 @@ const Settings: React.FC = () => {
         crops: formData.crops,
         other_crop: formData.otherCrop || null,
         profile_picture_url: photoUrl,
+        phone_number: formData.phone_number,
       });
 
       const { error, data } = await supabase
@@ -181,6 +185,7 @@ const Settings: React.FC = () => {
           crops: formData.crops,
           other_crop: formData.otherCrop || null,
           profile_picture_url: photoUrl,
+          phone_number: formData.phone_number,
         })
         .eq("user_id", userId);
 
@@ -285,6 +290,28 @@ const Settings: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
+
+                  <div>
+                    <label
+                      htmlFor="phone_number"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Enter your Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone_number"
+                      id="phone_number"
+                      placeholder="0123456789"
+                      pattern="[0-9]{10}"
+                      required
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      title="Please enter a valid 10 Digit number"
+                    />
+                  </div>
+
                   {/* Aadhaar Number */}
                   <div>
                     <label

@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
+import Image from "next/image";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -11,16 +11,31 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // List of common crops in India
 const cropOptions = [
-  "Rice", "Wheat", "Maize", "Millets", "Pulses", "Cotton", "Sugarcane",
-  "Oilseeds", "Fruits", "Vegetables", "Tea", "Coffee", "Jute", "Rubber",
-  "Spices", "Other"
+  "Rice",
+  "Wheat",
+  "Maize",
+  "Millets",
+  "Pulses",
+  "Cotton",
+  "Sugarcane",
+  "Oilseeds",
+  "Fruits",
+  "Vegetables",
+  "Tea",
+  "Coffee",
+  "Jute",
+  "Rubber",
+  "Spices",
+  "Other",
 ];
 
 interface FarmerRegistrationProps {
   userId: string;
 }
 
-export default function FarmerRegistration({ userId }: FarmerRegistrationProps) {
+export default function FarmerRegistration({
+  userId,
+}: FarmerRegistrationProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -30,6 +45,7 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
     pincode: "",
     crops: [] as string[],
     otherCrop: "",
+    phone_number: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
@@ -37,7 +53,9 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
@@ -70,33 +88,31 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
 
       // Upload profile picture if selected
       if (profilePicture) {
-        const fileExt = profilePicture.name.split('.').pop();
+        const fileExt = profilePicture.name.split(".").pop();
         const fileName = `${userId}-${Date.now()}.${fileExt}`;
-        
+
         // Check if the bucket exists, if not create it
-        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+        const { data: buckets, error: bucketError } =
+          await supabase.storage.listBuckets();
         if (bucketError) throw bucketError;
 
-        if (!buckets.find(bucket => bucket.name === 'dude')) {
-          console.log(89)
+        if (!buckets.find((bucket) => bucket.name === "dude")) {
+          console.log(89);
         }
-        
 
         const { error: uploadError } = await supabase.storage
-          .from('PFP')
+          .from("PFP")
           .upload(fileName, profilePicture, { upsert: true });
 
         if (uploadError) throw uploadError;
 
         // Get public URL of uploaded file
-        const { data: { publicUrl },  } = supabase.storage
-          .from('PFP')
-          .getPublicUrl(fileName);
-
-        
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("PFP").getPublicUrl(fileName);
 
         profilePictureUrl = publicUrl;
-        console.log(9)
+        console.log(9);
       }
 
       // Filter out "Other" from crops array
@@ -129,23 +145,24 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
             other_crop: formData.otherCrop || null,
             profile_picture_url: profilePictureUrl,
             role: "farmer",
+            phone_number: formData.phone_number,
           })
           .eq("user_id", userId);
       } else {
         // Insert new registration
-        result = await supabase
-          .from("farmer_registrations")
-          .insert({
-            user_id: userId,
-            name: formData.name,
-            aadhar_number: formData.aadharNumber,
-            address: formData.address,
-            state: formData.state,
-            pincode: formData.pincode,
-            crops: filteredCrops,
-            other_crop: formData.otherCrop || null,
-            profile_picture_url: profilePictureUrl,
-          });
+        result = await supabase.from("farmer_registrations").insert({
+          user_id: userId,
+          name: formData.name,
+          aadhar_number: formData.aadharNumber,
+          address: formData.address,
+          state: formData.state,
+          pincode: formData.pincode,
+          crops: filteredCrops,
+          other_crop: formData.otherCrop || null,
+          role: "farmer",
+          phone_number: formData.phone_number,
+          profile_picture_url: profilePictureUrl,
+        });
       }
 
       if (result.error) throw result.error;
@@ -194,6 +211,27 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
 
               <div>
                 <label
+                  htmlFor="phone_number"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Enter your Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone_number"
+                  id="phone_number"
+                  placeholder="0123456789"
+                  pattern="[0-9]{10}"
+                  required
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  title="Please enter a valid 10 Digit number"
+                />
+              </div>
+
+              <div>
+                <label
                   htmlFor="aadharNumber"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
@@ -211,6 +249,8 @@ export default function FarmerRegistration({ userId }: FarmerRegistrationProps) 
                   title="Please enter a valid 12-digit Aadhar number"
                 />
               </div>
+
+              
 
               <div>
                 <label
