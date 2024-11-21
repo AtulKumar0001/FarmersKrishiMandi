@@ -145,7 +145,7 @@ const CropCard = ({ crop }: CropCardProps) => {
                     disabled={hasSubmittedContract}
                     aria-disabled={hasSubmittedContract}
                   >
-                    {hasSubmittedContract ? 'Contract Submitted' : 'View Contract Template'}
+                    {hasSubmittedContract ? 'Contract Submitted' : 'Create Contract'}
                   </button>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import Sidebar from '@/components/sidebar'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import InfoBar from '../../../../components/global/infobar'
+import { Toaster } from '@/components/ui/toaster'
 
 
 type Props = {
@@ -38,7 +39,9 @@ const layout = async ({ children, params }: Props) => {
       <div className="md:pl-[300px]">
         <InfoBar/>
         <div className="relative">
-          <BlurPage>{children}</BlurPage>
+          <BlurPage>{children} 
+          <Toaster />
+          </BlurPage>
         </div>
       </div>
     </div>

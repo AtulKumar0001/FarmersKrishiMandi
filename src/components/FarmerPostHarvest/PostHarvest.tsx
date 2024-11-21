@@ -5,9 +5,9 @@ import { createClient } from "@/utils/supabase/client";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { toast } from "sonner";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import PostRequest from "./PostHarvestRequests";
+import { useToast } from "@/hooks/use-toast";
 
 interface FarmerData {
   name: string;
@@ -17,6 +17,7 @@ interface FarmerData {
 }
 
 export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
+  const { toast } = useToast();
   const [farmerData, setFarmerData] = useState<FarmerData | null>(null);
   const [isSubmitted, setisSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +28,7 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
     phone_number:"",
     description: "",
   });
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     const fetchFarmerData = async () => {
@@ -44,7 +46,11 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
 
         if (error) {
           console.error("Error fetching farmer data:", error);
-          toast.error("Failed to fetch farmer details");
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch farmer details"
+          });
           return;
         }
 
@@ -52,7 +58,11 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
         setFarmerData(data);
       } catch (error) {
         console.error("Error in fetchFarmerData:", error);
-        toast.error("Something went wrong while fetching farmer details");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Something went wrong while fetching farmer details"
+        });
       } finally {
         setIsLoading(false);
       }
@@ -61,10 +71,11 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
     if (farmerId) {
       fetchFarmerData();
     }
-  }, [farmerId]);
+  }, [farmerId, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitLoading(true);
 
     try {
       const supabase = createClient();
@@ -81,8 +92,10 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
 
       if (error) throw error;
       setisSubmitted(true);
-
-      toast.success("Crop details submitted successfully!");
+      toast({
+        title: "Success",
+        description: "Crop details submitted successfully!"
+      });
 
       // Reset form
       setCropDetails({
@@ -94,7 +107,13 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
       });
     } catch (error) {
       console.error("Error submitting crop details:", error);
-      toast.error("Failed to submit crop details");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit crop details"
+      });
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -242,8 +261,38 @@ export default function PostHarvestForm({ farmerId }: { farmerId: string }) {
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Submit Crop Details
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={submitLoading}
+            >
+              {submitLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                "Submit Crop Details"
+              )}
             </Button>
           </form>
         </CardContent>
