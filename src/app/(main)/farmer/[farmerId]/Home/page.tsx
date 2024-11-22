@@ -4,12 +4,12 @@ import CompletedContract from "@/components/CardContracts/CompletedContract";
 import OngoingContract from "@/components/CardContracts/OngoingContract";
 import PendingContract from "@/components/CardContracts/PendingContract";
 import { useState, useEffect } from "react";
-import { Contract } from "@/types/contracts";
+import { Contracts } from "@/types/contracts";
 
 interface ContractState {
   count: number;
   totalAmount: number;
-  contracts: Contract[];
+  contracts: Contracts[];
 }
 
 export default function Home() {

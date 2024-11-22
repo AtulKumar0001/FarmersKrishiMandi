@@ -19,9 +19,14 @@ const ContractForm = ({ crop, onClose, onSubmit }: ContractFormProps) => {
   const [formData, setFormData] = useState<Omit<ContractData, 'farmer_id'>>({
     type: 'post_harvest',
     price: crop.expected_price,
+    crop_name: crop.crop_name,
+    quantity: crop.quantity,
     delivery_date: '',
     status: 'pending',
-    
+    block_no:null,
+    buyer_otp:null,
+    farmer_otp:null,
+    delivery_status:'pending'
   });
 
   const minDate = new Date().toISOString().split('T')[0];
@@ -74,7 +79,7 @@ const ContractForm = ({ crop, onClose, onSubmit }: ContractFormProps) => {
                 onClick={onClose}
                 className="p-1 rounded-full hover:bg-white/20 transition-colors duration-200"
               >
-                <X className="w-6 h-6 text-white" />
+                {isSubmitting ? "" : <X className="w-6 h-6 text-white" />}
               </button>
             </div>
 
@@ -149,6 +154,7 @@ const ContractForm = ({ crop, onClose, onSubmit }: ContractFormProps) => {
                   <button
                     type="button"
                     onClick={onClose}
+                    disabled={isSubmitting}
                     className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
                   >
                     Cancel

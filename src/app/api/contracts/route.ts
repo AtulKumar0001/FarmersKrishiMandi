@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       .select('id')
       .eq('buyer_id', buyerData.id)
       .eq('farmer_id', farmerData.id)
+      .eq('crop_name', data.crop_name)
       .single();
 
     if (existingContract) {
@@ -63,6 +64,8 @@ export async function POST(request: Request) {
         price: data.price,
         delivery_date: data.delivery_date,
         status: 'pending',
+        crop_name: data.crop_name,
+        quantity: data.quantity,
       }])
       .select()
       .single();

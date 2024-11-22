@@ -9,7 +9,6 @@ interface CropCardsProps {
 }
 
 const CropCards = ({ initialCrops }: CropCardsProps) => {
-  console.log(initialCrops)
   const [crops] = useState(initialCrops);
   const { ref, inView } = useInView({
     threshold: 0,

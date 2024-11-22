@@ -6,9 +6,10 @@ import PostHarvestForm from "./PostHarvestForm";
 import { useToast } from "@/hooks/use-toast";
 import PostedCrops from "./PostedCrops";
 import { Crop } from '@/types/crop';
+import ContractRequests from "./ContractRequests";
 
 export default function PostHarvestLanding({farmerId}:{farmerId:string}) {
-    const [activeTab, setActiveTab] = useState('crops');
+    const [activeTab, setActiveTab] = useState('contracts');
     const [showAddCropModal, setShowAddCropModal] = useState(false);
     const [farmerData, setFarmerData] = useState(null);
     const { toast } = useToast();
@@ -38,7 +39,7 @@ export default function PostHarvestLanding({farmerId}:{farmerId:string}) {
 
     const handleCropAdded = (newCrop: Crop) => {
         setShowAddCropModal(false);
-        const postedCropsComponent = document.getElementById('posted-crops');
+        const postedCropsComponent = document.getElementById('crops');
         if (postedCropsComponent) {
             const event = new CustomEvent('cropAdded', { detail: newCrop });
             postedCropsComponent.dispatchEvent(event);
@@ -71,13 +72,13 @@ export default function PostHarvestLanding({farmerId}:{farmerId:string}) {
             </div>
 
             <div className="mt-6">
-                {/* {activeTab === 'contracts' ? ( */}
-                    {/* <ContractRequests farmerId={farmerId} /> */}
-                {/* ) : ( */}
+                {activeTab === 'contracts' ? (
+                    <ContractRequests farmerId={farmerId} /> 
+                 ) : ( 
                     <div id="posted-crops">
                         <PostedCrops farmerId={farmerId} />
                     </div>
-                {/* )} */}
+                )} 
             </div>
 
             {showAddCropModal && farmerData && (

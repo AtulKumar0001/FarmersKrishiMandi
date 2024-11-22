@@ -36,7 +36,7 @@ const CropCard = ({ crop }: CropCardProps) => {
           crop_id: crop.id,
         }),
       });
-
+      console.log(response)
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to submit contract');
@@ -118,6 +118,7 @@ const CropCard = ({ crop }: CropCardProps) => {
                     <p className="transition-transform duration-200 hover:translate-x-1">Quantity: {crop.quantity} kg</p>
                     <p className="transition-transform duration-200 hover:translate-x-1">Expected Price: {formattedPrice}</p>
                     <p className="transition-transform duration-200 hover:translate-x-1">Description: {crop.description}</p>
+                    <p className="transition-transform duration-200 hover:translate-x-1">Crop Name: {crop.crop_name}</p>
                   </div>
                 </div>
                 <div className="flex justify-end space-x-4 mt-4">

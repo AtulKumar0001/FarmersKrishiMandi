@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
-import { Contract } from "@/types/contracts";
+import { Contracts } from "@/types/contracts";
 
 interface MaximizedContractProps {
-  contracts: Contract[];
+  contracts: Contracts[];
   onClose: () => void;
   title: string;
   theme: 'green' | 'red' | 'blue' | 'yellow';
 }
 
 export default function MaximizedContract({ contracts, onClose, title, theme }: MaximizedContractProps) {
-  const [displayedContracts, setDisplayedContracts] = useState<Contract[]>([]);
+  const [displayedContracts, setDisplayedContracts] = useState<Contracts[]>([]);
   const [page, setPage] = useState(1);
   const loader = useRef(null);
   const CONTRACTS_PER_PAGE = 10;

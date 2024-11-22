@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import { XCircle } from "lucide-react";
 import MaximizedContract from "./MaximizedContract";
-import { Contract } from "@/types/contracts";
+import { Contracts } from "@/types/contracts";
 
 interface CancelledContractProps {
   cancelledCount: number;
   totalAmount: number;
-  contracts: Contract[];
+  contracts: Contracts[];
 }
 
 const CancelledContract: React.FC<CancelledContractProps> = ({

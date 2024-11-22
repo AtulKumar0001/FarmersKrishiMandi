@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
 import MaximizedContract from "./MaximizedContract";
-import { Contract } from "@/types/contracts";
+import { Contracts } from "@/types/contracts";
 
 interface CompletedContractProps {
   completedCount: number;
   totalAmount: number;
-  contracts: Contract[];
+  contracts: Contracts[];
 }
 
 const CompletedContract: React.FC<CompletedContractProps> = ({ completedCount, totalAmount, contracts }) => {

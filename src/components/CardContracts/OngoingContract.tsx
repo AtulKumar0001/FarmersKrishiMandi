@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import MaximizedContract from "./MaximizedContract";
-import { Contract } from "@/types/contracts";
+import { Contracts } from "@/types/contracts";
 
 interface OngoingContractProps {
   ongoingCount: number;
   totalAmount: number;
-  contracts: Contract[];
+  contracts: Contracts[];
 }
 
 const OngoingContract: React.FC<OngoingContractProps> = ({ ongoingCount, totalAmount, contracts }) => {
