@@ -371,6 +371,7 @@ export default function FarmerRegistration({
                       width={80}
                       height={80}
                       className="rounded-full object-cover"
+                      required
                     />
                   )}
                   <button
