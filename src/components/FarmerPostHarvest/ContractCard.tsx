@@ -17,8 +17,15 @@ export default function ContractCard({ contract, onStatusUpdate }: ContractCardP
   const handleStatusUpdate = async (status: 'accepted' | 'rejected') => {
     if (isUpdating) return;
     setIsUpdating(true);
-    await onStatusUpdate(status);
-    setIsUpdating(false);
+
+    try {
+      await onStatusUpdate(status);
+    } catch (error) {
+      console.error(`Failed to ${status} contract:`, error);
+      throw error;
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (

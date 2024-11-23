@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Contract } from '@/types/contracts';
 import ContractCard from './ContractCard';
+import { ethers, BrowserProvider } from "ethers";
+
 
 export default function ContractRequests({ farmerId }: { farmerId: string }) {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -17,7 +19,7 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
       // First, get the farmer's registration ID
       const { data: farmerData, error: farmerError } = await supabase
         .from('farmer_registrations')
-        .select('id')
+        .select('id, user_id')
         .eq('user_id', farmerId)
         .single();
 
@@ -29,6 +31,8 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
         .select(`
           *,
           buyer:buyer_registrations!buyer_id(
+            id,
+            user_id,
             name,
             address,
             state,
@@ -50,6 +54,42 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getContractDetails = async (contractAddress: string) => {
+    try {
+      if (!window.ethereum) {
+        throw new Error("MetaMask not detected");
+      }
+      
+      const provider = new BrowserProvider(window.ethereum);
+      const abi = [
+        "function contractDetails() public view returns (string, string, uint256, string, uint256, uint256, string, uint256)"
+      ];
+      
+      const contract = new ethers.Contract(contractAddress, abi, provider);
+      const details = await contract.contractDetails();
+      
+      console.log("Contract Details:", {
+        buyerId: details[0],
+        farmerId: details[1],
+        price: ethers.formatEther(details[2]),
+        cropType: details[3],
+        quantity: details[4].toString(),
+        duration: details[5].toString(),
+        status: details[6],
+        createdAt: new Date(Number(details[7]) * 1000)
+      });
+      
+      return details;
+    } catch (error) {
+      console.error("Error fetching contract details:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch contract details"
+      });
     }
   };
 
@@ -84,67 +124,104 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
         <ContractCard 
           key={contract.id} 
           contract={contract}
-          onStatusUpdate={async (status) => {
-            const supabase = createClient();
-            
-            if (status === 'accepted') {
-              const farmerOtp = Math.random().toString(36).slice(-6).toUpperCase();
-              const buyerOtp = Math.random().toString(36).slice(-6).toUpperCase();
+          onStatusUpdate={async (status: 'accepted' | 'rejected') => {
+            try {
+              const supabase = createClient();
+              
+              if (status === 'accepted') {
+                // Generate OTPs
+                const buyerOtp = Math.random().toString(36).slice(-6).toUpperCase();
+                const farmerOtp = Math.random().toString(36).slice(-6).toUpperCase();
 
-              // First update the contract status
-              const { error: contractError } = await supabase
-                .from('contracts')
-                .update({ status })
-                .eq('id', contract.id);
+                // Connect to Ethereum
+                if (!window.ethereum) {
+                  throw new Error("MetaMask not detected. Please install MetaMask.");
+                }
 
-              if (contractError) {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: `Failed to ${status} contract`
+                // Connect to Ethereum
+                const provider = new BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = await provider.getSigner();
+
+                // Smart contract interaction
+                const contractAddress = "0xb590837f0A140804C748868DB44b633d60c11e66";
+                const abi = [
+                  "function initializeContract(string memory _buyerId, string memory _farmerId, uint256 _setPrice, string memory _cropType, uint256 _quantity, uint256 _duration, string memory _buyerSecret, string memory _farmerSecret) public",
+                  "event ContractCreated(string message)"
+                ];
+                const smartContract = new ethers.Contract(contractAddress, abi, signer);
+
+                // Add event listener for ContractCreated event
+                smartContract.on("ContractCreated", (message: string) => {
+                  console.log("Contract Created Event:", message);
                 });
-                return;
+
+                // Deploy to blockchain
+                const { data: farmerData, error: farmerError } = await supabase
+                  .from('farmer_registrations')
+                  .select('id, user_id')
+                  .eq('user_id', farmerId)
+                  .single();
+
+                if (farmerError) throw farmerError;
+
+                if (!contract.buyer) {
+                  throw new Error("Buyer information not found");
+                }
+                const tx = await smartContract.initializeContract(
+                  contract.buyer.user_id,
+                  farmerData.user_id,
+                  ethers.parseEther(contract.price.toString()),
+                  contract.crop_name,
+                  contract.quantity,
+                  30 * 24 * 60 * 60,
+                  buyerOtp,
+                  farmerOtp
+                );
+
+                // Wait for transaction and get receipt
+                const receipt = await tx.wait();
+                console.log("Transaction Hash:", receipt.hash);
+                const details = await getContractDetails(contractAddress);
+                console.log("Saved Contract Details:", details);
+
+                // Store transaction hash in accepted_post_harvest_contracts
+                await supabase
+                  .from('accepted_post_harvest_contracts')
+                  .insert([{
+                    contract_id: contract.id,
+                    farmer_otp: farmerOtp,
+                    buyer_otp: buyerOtp,
+                    block_no: receipt.blockNumber.toString(), // Add block number
+                  }]);
+
+                // Update Supabase
+                await supabase
+                  .from('contracts')
+                  .update({ status })
+                  .eq('id', contract.id);
+              } else {
+                // Just update status for rejection
+                await supabase
+                  .from('contracts')
+                  .update({ status })
+                  .eq('id', contract.id);
               }
 
-              // Then create entry in accepted_post_harvest_contracts
-              const { error: acceptedError } = await supabase
-                .from('accepted_post_harvest_contracts')
-                .insert([{
-                  contract_id: contract.id,
-                  farmer_otp: farmerOtp,
-                  buyer_otp: buyerOtp,
-                }]);
-
-              if (acceptedError) {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Failed to create accepted contract entry"
-                });
-                return;
-              }
-            } else {
-              // If rejecting, just update the contract status
-              const { error } = await supabase
-                .from('contracts')
-                .update({ status })
-                .eq('id', contract.id);
-
-              if (error) {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: `Failed to ${status} contract`
-                });
-                return;
-              }
+              setContracts(contracts.filter(c => c.id !== contract.id));
+              toast({
+                title: "Success",
+                description: `Contract ${status} successfully`
+              });
+            } catch (error) {
+              console.log(error,status)
+              console.error(`Error ${status}ing contract:`, error);
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: `Failed to ${status} contract`
+              });
             }
-
-            setContracts(contracts.filter(c => c.id !== contract.id));
-            toast({
-              title: "Success",
-              description: `Contract ${status} successfully`
-            });
           }}
         />
       ))}
