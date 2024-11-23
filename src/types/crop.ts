@@ -20,8 +20,8 @@ export interface Crop {
     crop_name:string;
     quantity:number;
     farmer_id: string;
-    farmer_otp:string | null,
-    buyer_otp:string | null,
-    block_no:string | null,
+    // farmer_otp:string | null,
+    // buyer_otp:string | null,
+    // block_no:string | null,
     delivery_status:'pending'|'started'|'fullfilled'
   }

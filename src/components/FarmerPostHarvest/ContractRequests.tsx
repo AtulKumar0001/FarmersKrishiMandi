@@ -86,25 +86,58 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
           contract={contract}
           onStatusUpdate={async (status) => {
             const supabase = createClient();
-            const farmerOtp = Math.random().toString(36).slice(-6).toUpperCase();
-            const buyerOtp = Math.random().toString(36).slice(-6).toUpperCase();
+            
+            if (status === 'accepted') {
+              const farmerOtp = Math.random().toString(36).slice(-6).toUpperCase();
+              const buyerOtp = Math.random().toString(36).slice(-6).toUpperCase();
 
-            const { error } = await supabase
-              .from('contracts')
-              .update({ 
-                status,
-                farmer_otp: status === 'accepted' ? farmerOtp : null,
-                buyer_otp: status === 'accepted' ? buyerOtp : null
-              })
-              .eq('id', contract.id);
+              // First update the contract status
+              const { error: contractError } = await supabase
+                .from('contracts')
+                .update({ status })
+                .eq('id', contract.id);
 
-            if (error) {
-              toast({
-                variant: "destructive",
-                title: "Error",
-                description: `Failed to ${status} contract`
-              });
-              return;
+              if (contractError) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: `Failed to ${status} contract`
+                });
+                return;
+              }
+
+              // Then create entry in accepted_post_harvest_contracts
+              const { error: acceptedError } = await supabase
+                .from('accepted_post_harvest_contracts')
+                .insert([{
+                  contract_id: contract.id,
+                  farmer_otp: farmerOtp,
+                  buyer_otp: buyerOtp,
+                }]);
+
+              if (acceptedError) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Failed to create accepted contract entry"
+                });
+                return;
+              }
+            } else {
+              // If rejecting, just update the contract status
+              const { error } = await supabase
+                .from('contracts')
+                .update({ status })
+                .eq('id', contract.id);
+
+              if (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: `Failed to ${status} contract`
+                });
+                return;
+              }
             }
 
             setContracts(contracts.filter(c => c.id !== contract.id));

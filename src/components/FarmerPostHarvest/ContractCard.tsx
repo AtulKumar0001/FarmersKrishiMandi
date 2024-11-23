@@ -49,7 +49,7 @@ export default function ContractCard({ contract, onStatusUpdate }: ContractCardP
                     <span className="font-medium">Price:</span> {formatPrice(contract.price)}
                   </p>
                   <p className="transition-transform duration-200 hover:translate-x-1">
-                    <span className="font-medium">Delivery Date:</span> {new Date(contract.delivery_date).toLocaleDateString()}
+                    <span className="font-medium">Delivery Date:</span> {new Date(contract.delivery_date).toLocaleDateString('en-IN')}
                   </p>
                   
                 </div>
@@ -88,7 +88,7 @@ export default function ContractCard({ contract, onStatusUpdate }: ContractCardP
                     Price: {formatPrice(contract.price)}
                   </p>
                   <p className="transition-transform duration-200 hover:translate-x-1">
-                    Delivery Date: {new Date(contract.delivery_date).toLocaleDateString()}
+                    Delivery Date: {new Date(contract.delivery_date).toLocaleDateString('en-IN')}
                   </p>
                   <p className="transition-transform duration-200 hover:translate-x-1">
                     Crop Name: {contract.crop_name}

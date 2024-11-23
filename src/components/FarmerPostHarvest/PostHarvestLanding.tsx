@@ -9,7 +9,7 @@ import { Crop } from '@/types/crop';
 import ContractRequests from "./ContractRequests";
 
 export default function PostHarvestLanding({farmerId}:{farmerId:string}) {
-    const [activeTab, setActiveTab] = useState('contracts');
+    const [activeTab, setActiveTab] = useState('crops');
     const [showAddCropModal, setShowAddCropModal] = useState(false);
     const [farmerData, setFarmerData] = useState(null);
     const { toast } = useToast();
@@ -39,9 +39,12 @@ export default function PostHarvestLanding({farmerId}:{farmerId:string}) {
 
     const handleCropAdded = (newCrop: Crop) => {
         setShowAddCropModal(false);
-        const postedCropsComponent = document.getElementById('crops');
+        const postedCropsComponent = document.getElementById('posted-crops');
         if (postedCropsComponent) {
-            const event = new CustomEvent('cropAdded', { detail: newCrop });
+            const event = new CustomEvent('cropAdded', { 
+                detail: newCrop,
+                bubbles: true 
+            });
             postedCropsComponent.dispatchEvent(event);
         }
         toast({

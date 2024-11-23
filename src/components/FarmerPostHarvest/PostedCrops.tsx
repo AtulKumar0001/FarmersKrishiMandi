@@ -37,8 +37,8 @@ export default function PostedCrops({ farmerId }: { farmerId: string }) {
     
     const postedCropsElement = document.getElementById('posted-crops');
     if (postedCropsElement) {
-        const handleCropAdded = () => {
-            fetchCrops();
+        const handleCropAdded = (event: CustomEvent<Crop>) => {
+            setCrops(prevCrops => [...prevCrops, event.detail]);
         };
         
         postedCropsElement.addEventListener('cropAdded', handleCropAdded as EventListener);

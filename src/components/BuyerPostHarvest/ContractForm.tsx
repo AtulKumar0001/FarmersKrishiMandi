@@ -23,9 +23,9 @@ const ContractForm = ({ crop, onClose, onSubmit }: ContractFormProps) => {
     quantity: crop.quantity,
     delivery_date: '',
     status: 'pending',
-    block_no:null,
-    buyer_otp:null,
-    farmer_otp:null,
+    // block_no:null,
+    // buyer_otp:null,
+    // farmer_otp:null,
     delivery_status:'pending'
   });
 
