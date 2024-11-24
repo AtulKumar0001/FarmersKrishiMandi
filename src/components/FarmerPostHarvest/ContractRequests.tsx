@@ -185,9 +185,9 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
                 const details = await getContractDetails(contractAddress);
                 console.log("Saved Contract Details:", details);
 
-                // Store transaction hash in accepted_post_harvest_contracts
+                // Store transaction hash in ongoing_post_harvest_contracts
                 await supabase
-                  .from('accepted_post_harvest_contracts')
+                  .from('ongoing_post_harvest_contracts')
                   .insert([{
                     contract_id: contract.id,
                     farmer_otp: farmerOtp,
