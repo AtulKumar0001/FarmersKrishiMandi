@@ -1,12 +1,13 @@
-export interface MetaMaskEthereumProvider {
-    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-    on: (eventName: string, handler: (message: string) => void) => void;
-    removeListener: (eventName: string, handler: (message: string) => void) => void;
-    isMetaMask?: boolean;
+import { Eip1193Provider } from "ethers";
+
+interface Window {
+  ethereum?: Eip1193Provider;
+}
+
+declare global {
+  interface Window {
+    ethereum?: Eip1193Provider;
   }
-  
-  declare global {
-    interface Window {
-      ethereum?: MetaMaskEthereumProvider;
-    }
-  }
+}
+
+export {};

@@ -6,7 +6,7 @@ import { Contract } from '@/types/contracts';
 
 interface ContractCardProps {
   contract: Contract;
-  onStatusUpdate: (contract: Contract) => Promise<void>;
+  onStatusUpdate: (contract: Contract, status: 'accepted' | 'rejected') => Promise<void>;
 }
 
 export default function ContractCard({ contract, onStatusUpdate }: ContractCardProps) {
@@ -19,7 +19,7 @@ export default function ContractCard({ contract, onStatusUpdate }: ContractCardP
     setIsUpdating(true);
 
     try {
-      await onStatusUpdate(contract);
+      await onStatusUpdate(contract, status);
     } catch (error) {
       console.error(`Failed to ${status} contract:`, error);
       throw error;
