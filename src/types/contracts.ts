@@ -31,5 +31,5 @@ export interface Contract {
   farmer_otp: string | null;
   buyer_otp: string | null;
   created_at: string;
-  buyer?: BuyerInfo;
+  buyer: BuyerInfo;
 }
