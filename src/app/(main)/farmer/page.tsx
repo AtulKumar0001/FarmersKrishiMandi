@@ -11,7 +11,7 @@ const Page = async () => {
 
   // If no user is logged in, redirect to login page
   if (!user) {
-    redirect("/login"); // Adjust this path to your login page route
+    redirect("/login"); 
   }
 
   // Check if the farmer has already filled the form
@@ -19,13 +19,11 @@ const Page = async () => {
     .from("farmer_registrations")
     .select("id")
     .eq("user_id", user.id)
-    .maybeSingle(); // Change .single() to .maybeSingle()
+    .maybeSingle(); // .maybeSingle()
 
   if (error && error.code !== "PGRST116") {
     console.error("Error checking farmer registration:", error);
-    // Handle the error appropriately
-    // You might want to redirect to an error page or show an error message
-    return; // or redirect to an error page
+    return; // redirect to an error page
   }
 
   // If the farmer has already registered, redirect to the main page or their dashboard
