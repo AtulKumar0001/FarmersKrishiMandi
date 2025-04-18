@@ -38,6 +38,15 @@
 
 ---
 
+### 🏠 Krishi Mandi Contracts
+
+- View contract in thr KrishiMandiContracts folder
+- Build and compile the contracts in remix
+- Deploy the factory method and add the deployed address in the .env file
+
+---
+
+
 ## 📦 Getting Started
 
 ### 1. Clone the Repository
@@ -64,6 +73,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=     # Your Supabase anon public key
 NEXT_PUBLIC_GEMINI_API_KEY=        # Your Gemini API key
 NEXT_PUBLIC_YOUTUBE_VIDEO_URL=     # Tutorial video URL for farmers
 NEXT_SUPABASE_DOMAIN=              # Your Supabase domain (without https://)
+NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS    # Deployed factory address ( find the contract and factory contract in the krishiMandi contracts folder and deploy on remix)
+#Contract ABI is hardCoded in ContractRequests.tsx file(If you change the contract and need to replace ABI)
 
 4. Run the Application
 

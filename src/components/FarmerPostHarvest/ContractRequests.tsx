@@ -8,7 +8,15 @@ import { ethers, BrowserProvider, Log } from "ethers";
 
 
 
-const FACTORY_ADDRESS = "0x302275981fa3C4ab7F3D3dE8AEb16721351E8Ca1";
+const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS as string;
+// Ensure this environment variable is set in your .env file
+if (!FACTORY_ADDRESS) {
+  throw new Error("Please set the NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS environment variable");
+}
+// Ensure this environment variable is set in your .env file
+if (!process.env.NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS) {
+  throw new Error("Please set the NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS environment variable");
+}
 const FACTORY_ABI = [
   "function createContract(string memory _buyerId, string memory _farmerId, uint256 _setPrice, string memory _cropType, uint256 _quantity, uint256 _duration, string memory _buyerSecret, string memory _farmerSecret) public returns (address)",
   "function getDeployedContracts() public view returns (address[])",
