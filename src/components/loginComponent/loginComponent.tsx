@@ -175,43 +175,17 @@ export default function SignUp() {
               placeholder={getContent("enterPassword")}
             />
           </div>
-          <div className="flex flex-col space-y-4">
-            <button
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
-              formAction={async (formData) => {
-                const result = await signup(formData);
-                if (result?.error) {
-                  console.error(result.error);
-                  // Handle error (e.g., show error message to user)
-                }
-              }}
-            >
-              {getContent("signUp")}
-            </button>
-            <button
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
-              formAction={async (formData) => {
-                const result = await login(formData);
-                if (result?.error) {
-                  console.error(result.error);
-                  // Handle error (e.g., show error message to user)
-                }
-              }}
-            >
-              {getContent("logIn")}
-            </button>
-          </div>
         </form>
         <div className="mt-4">
           <button
             onClick={handleGoogleLoginFarmer}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 mb-3"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 mb-3"
           >
             {getContent("signInGoogleFarmer")}
           </button>
           <button
             onClick={handleGoogleLoginBuyer}
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
           >
             {getContent("signInGoogleBuyer")}
           </button>
