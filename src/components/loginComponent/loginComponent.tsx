@@ -2,8 +2,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
-  login,
-  signup,
   loginWithGoogleFarmer,
   loginWithGoogleBuyer,
 } from "../../app/login/actions";
