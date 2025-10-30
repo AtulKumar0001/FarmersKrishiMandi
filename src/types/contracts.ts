@@ -32,4 +32,6 @@ export interface Contract {
   buyer_otp: string | null;
   created_at: string;
   buyer: BuyerInfo;
+  crop_description?: string;
+  unit?: string;
 }

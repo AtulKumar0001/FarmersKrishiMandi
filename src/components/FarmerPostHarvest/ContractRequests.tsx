@@ -4,39 +4,25 @@ import { createClient } from '@/utils/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Contract } from '@/types/contracts';
 import ContractCard from './ContractCard';
-import { ethers, BrowserProvider, Log } from "ethers";
+import { ethers, BrowserProvider } from "ethers";
+import { ContractLog, FarmContractDetails, DeliveryStatus } from '@/types/blockchain';
 
+// Use the single FarmContract address
+const FARM_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS as string;
 
-
-const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS as string;
-// Ensure this environment variable is set in your .env file
-if (!FACTORY_ADDRESS) {
+if (!FARM_CONTRACT_ADDRESS) {
   throw new Error("Please set the NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS environment variable");
 }
-// Ensure this environment variable is set in your .env file
-if (!process.env.NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS) {
-  throw new Error("Please set the NEXT_PUBLIC_DEPLOYED_BLOCKCHAIN_FACTORY_CONTRACT_ADDRESS environment variable");
-}
-const FACTORY_ABI = [
-  "function createContract(string memory _buyerId, string memory _farmerId, uint256 _setPrice, string memory _cropType, uint256 _quantity, uint256 _duration, string memory _buyerSecret, string memory _farmerSecret) public returns (address)",
-  "function getDeployedContracts() public view returns (address[])",
-  "function getFarmerContracts(string memory _farmerId) public view returns (address[])",
-  "function getBuyerContracts(string memory _buyerId) public view returns (address[])",
-  "event ContractDeployed(address indexed contractAddress, string indexed buyerId, string indexed farmerId, uint256 timestamp)"
+
+// FarmContract ABI
+const FARM_CONTRACT_ABI = [
+  "function createContract(address _farmer, string memory _cropName, uint256 _price, uint256 _expectedDeliveryDate, string memory _farmerOtp, string memory _contractorOtp) external returns (uint256)",
+  "function getContract(uint256 _contractId) external view returns (tuple(uint256 id, address farmer, address contractor, string cropName, uint256 price, uint256 expectedDeliveryDate, uint8 deliveryStatus, bytes32 farmerOtpHash, bytes32 contractorOtpHash))",
+  "function updateStatus(uint256 _contractId, uint8 _status) external",
+  "function verifyOtp(uint256 _contractId, string memory _otp) external view returns (bool)",
+  "event ContractCreated(uint256 indexed contractId, address indexed farmer, address indexed contractor, string cropName, uint256 price, uint256 expectedDeliveryDate)",
+  "event StatusUpdated(uint256 indexed contractId, uint8 status)"
 ];
-
-// const CONTRACT_ABI = [
-//   "function initialize(string memory _buyerId, string memory _farmerId, uint256 _setPrice, string memory _cropType, uint256 _quantity, uint256 _duration, string memory _buyerSecret, string memory _farmerSecret) public",
-//   "function getContractStatus() public view returns (string memory status, bool buyerVerified, bool farmerVerified, uint256 remainingTime)",
-//   "function verifyBuyerSecret(string memory _secret) public",
-//   "function verifyFarmerSecret(string memory _secret) public",
-//   "function getContractDetails() public view returns (string memory buyerId, string memory farmerId, uint256 setPrice, string memory cropType, uint256 quantity, uint256 duration, uint256 createdAt)"
-// ];
-
-// Add interface for the contract event
-// interface ContractDeployedEvent {
-//   args: [string, string, string, bigint]; // [contractAddress, buyerId, farmerId, timestamp]
-// }
 
 export default function ContractRequests({ farmerId }: { farmerId: string }) {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -46,7 +32,7 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
   const fetchContracts = async () => {
     try {
       const supabase = createClient();
-      
+
       // First, get the farmer's registration ID
       const { data: farmerData, error: farmerError } = await supabase
         .from('farmer_registrations')
@@ -76,8 +62,9 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
 
       if (error) throw error;
       setContracts(data || []);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching contracts:', error);
+      
       toast({
         variant: "destructive",
         title: "Error",
@@ -100,68 +87,113 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
         const provider = new BrowserProvider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
+        const farmerAddress = await signer.getAddress();
 
-        // Create factory contract instance
-        const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+        // Create FarmContract instance
+        const farmContract = new ethers.Contract(FARM_CONTRACT_ADDRESS, FARM_CONTRACT_ABI, signer);
 
         // Generate OTPs
         const buyerOtp = Math.random().toString(36).slice(-6).toUpperCase();
         const farmerOtp = Math.random().toString(36).slice(-6).toUpperCase();
 
-        // Deploy new contract through factory
-        const tx = await factory.createContract(
-          contract.buyer.user_id,
-          farmerId,
-          ethers.parseEther(Number(contract.price).toFixed(18)),
+        console.log("Generated OTPs:", { farmerOtp, buyerOtp });
+
+        // Create the contract on blockchain
+        const tx = await farmContract.createContract(
+          farmerAddress, // farmer address
           contract.crop_name,
-          contract.quantity,
-          30 * 24 * 60 * 60,
-          buyerOtp,
-          farmerOtp
+          ethers.parseEther(Number(contract.price).toFixed(18)), // price in wei
+          Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days from now
+          farmerOtp,
+          buyerOtp
         );
 
+        console.log("Transaction sent:", tx.hash);
         const receipt = await tx.wait();
-        console.log(receipt);
-        
-        // Find the ContractDeployed event in the logs
-        const deployEvent = receipt.logs.find(
-          (log: Log) => {
-            try {
-              const parsedLog = factory.interface.parseLog({
-                topics: log.topics as string[],
-                data: log.data,
-              });
-              return parsedLog?.name === "ContractDeployed";
-            } catch {
-              return false;
-            }
+        console.log("Transaction receipt:", receipt);
+
+        // Find the ContractCreated event in the logs
+        const contractCreatedEvent = receipt.logs.find((log:ContractLog) => {
+          try {
+            const parsedLog = farmContract.interface.parseLog({
+              topics: log.topics as string[],
+              data: log.data,
+            });
+            return parsedLog?.name === "ContractCreated";
+          } catch {
+            return false;
           }
-        );
-
-        if (!deployEvent) {
-          throw new Error("Contract deployment event not found");
-        }
-
-        const parsedEvent = factory.interface.parseLog({
-          topics: deployEvent.topics as string[],
-          data: deployEvent.data,
         });
 
-        const deployedAddress = parsedEvent?.args[0];
-        if (!deployedAddress) {
-          throw new Error("Deployed address not found in event");
+        if (!contractCreatedEvent) {
+          throw new Error("Contract creation event not found");
+        }
+
+        const parsedEvent = farmContract.interface.parseLog({
+          topics: contractCreatedEvent.topics as string[],
+          data: contractCreatedEvent.data,
+        });
+        const contractIdOnChain = parsedEvent?.args[0];
+        
+        if (!contractIdOnChain) {
+          throw new Error("Contract ID not found in event");
+        }
+
+        console.log("Contract created successfully!");
+        console.log("On-chain Contract ID:", contractIdOnChain.toString());
+        console.log("Block number:", receipt.blockNumber);
+        console.log("Transaction hash:", receipt.hash);
+
+        // Fetch and log the created contract details
+        try {
+          const contractDetails: FarmContractDetails = await farmContract.getContract(contractIdOnChain);
+          console.log("Contract Details from Blockchain:", {
+            id: contractDetails.id.toString(),
+            farmer: contractDetails.farmer,
+            contractor: contractDetails.contractor,
+            cropName: contractDetails.cropName,
+            price: ethers.formatEther(contractDetails.price),
+            expectedDeliveryDate: new Date(Number(contractDetails.expectedDeliveryDate) * 1000).toISOString(),
+            deliveryStatus: DeliveryStatus[contractDetails.deliveryStatus] || contractDetails.deliveryStatus.toString(),
+            farmerOtpHash: contractDetails.farmerOtpHash,
+            contractorOtpHash: contractDetails.contractorOtpHash
+          });
+        } catch (fetchError: unknown) {
+          console.error("Error fetching contract details:", fetchError);
         }
 
         // Store in ongoing_post_harvest_contracts
-        await supabase
+        console.log("Inserting into Supabase:", {
+          contract_id: contract.id,
+          farmer_otp: farmerOtp,
+          buyer_otp: buyerOtp,
+          contract_address: FARM_CONTRACT_ADDRESS,
+          block_no: receipt.blockNumber.toString(),
+          delivery_status: 'pending'
+        });
+
+        console.log("On-chain Contract ID (for reference):", contractIdOnChain.toString());
+        console.log("Transaction Hash (for reference):", receipt.hash);
+
+        const { data: insertedData, error: insertError } = await supabase
           .from('ongoing_post_harvest_contracts')
-          .insert([{
+          .insert({
             contract_id: contract.id,
             farmer_otp: farmerOtp,
             buyer_otp: buyerOtp,
-            contract_address: deployedAddress,
-            block_no: receipt.blockNumber.toString(), // Add block number
-          }]);
+            contract_address: FARM_CONTRACT_ADDRESS,
+            block_no: receipt.blockNumber.toString(),
+            delivery_status: 'pending'
+          })
+          .select();
+
+        if (insertError) {
+          console.error("Supabase insert error:", insertError);
+          throw insertError;
+        }
+
+        console.log("Successfully inserted into Supabase:", insertedData);
+        
       } else {
         // Store in rejected_contracts
         await supabase
@@ -174,25 +206,37 @@ export default function ContractRequests({ farmerId }: { farmerId: string }) {
             crop_name: contract.crop_name,
             status: 'rejected'
           }]);
+
+        console.log("Contract rejected and stored in rejected_contracts");
       }
 
       // Update contract status
-      await supabase
+      const { error: updateError } = await supabase
         .from('contracts')
         .update({ status })
         .eq('id', contract.id);
+
+      if (updateError) {
+        console.error("Error updating contract status:", updateError);
+        throw updateError;
+      }
 
       setContracts(contracts.filter(c => c.id !== contract.id));
       toast({
         title: "Success",
         description: `Contract ${status} successfully`
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Error ${status}ing contract:`, error);
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'An unexpected error occurred';
+      
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Failed to ${status} contract`
+        description: `Failed to ${status} contract: ${errorMessage}`
       });
     }
   };
